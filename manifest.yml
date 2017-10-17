@@ -1,5 +1,4 @@
----
-applications:
- - name: GetStartedPython
-   random-route: true
-   memory: 128M
+  applications:
+  - name: changePointDetection
+    random-route: false
+    memory: 512M

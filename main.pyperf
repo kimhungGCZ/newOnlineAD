@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ProfilingTarget xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <StandaloneTarget>
+    <PythonInterpreter>
+      <Id>Global|PythonCore|3.6</Id>
+    </PythonInterpreter>
+    <WorkingDirectory>D:\Google Drive\13. These cifre\Data Cleaning\workspace\get-started-python</WorkingDirectory>
+    <Script>D:\Google Drive\13. These cifre\Data Cleaning\workspace\get-started-python\main.py</Script>
+    <Arguments />
+  </StandaloneTarget>
+  <Reports>
+    <Report>
+      <Filename>C:\Users\Kim Hung LE\AppData\Local\Temp\main_20171016.vsp</Filename>
+    </Report>
+  </Reports>
+</ProfilingTarget>

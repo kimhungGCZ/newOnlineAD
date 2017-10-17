@@ -4,6 +4,8 @@ import atexit
 import cf_deployment_tracker
 import os
 import json
+import main
+
 
 # Emit Bluemix deployment event
 cf_deployment_tracker.track()
@@ -42,6 +44,12 @@ port = int(os.getenv('PORT', 8000))
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/run')
+def run():
+    deviceID = request.args.get('deviceID')
+    detect_final_result = main.main_function(deviceID)
+    return "".join(str(x) for x in detect_final_result)
 
 # /* Endpoint to greet and add a new visitor to database.
 # * Send a POST request to localhost:8000/api/visitors with body
