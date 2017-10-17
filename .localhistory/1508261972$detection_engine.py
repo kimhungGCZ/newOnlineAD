@@ -121,7 +121,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     start_time_calculate_Y = time.time()
     # Calculate Y
     executor = concurrent.futures.ThreadPoolExecutor(
-        max_workers=16,
+        max_workers=3,
     )
     tasks = []
     loop = asyncio.new_event_loop()
@@ -158,37 +158,34 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         flag_stop = 0
         flag_round = 2
         while flag_stop <= int(limit_size/2):
-            time.sleep(0.01)
-            flag_stop +=1
-            #len_start = len(inverse_neighboor)
-            #dist, ind = tree.query([anomaly_point], k=flag_round)
-            #for index_dist, i in enumerate(ind[0]):
-            #    if [index_dist, i] not in inverse_neighboor:
-            #        if inverse_neighboor.size != 0:
-            #            if i not in inverse_neighboor_temp:
-            #                in_dist, in_ind = tree.query([X[i]], k=flag_round)
-            #                if ((index_ano in in_ind[0])) :#or (check_in_array(in_ind[0], inverse_neighboor) == 1):
-            #                    inverse_neighboor = np.append(inverse_neighboor, [[index_dist, i]], axis=0)  # np.append(inverse_neighboor, [index_dist, i], axis=0)
-            #                    inverse_neighboor_temp = np.append(inverse_neighboor_temp, i)
-            #        else:
-            #            in_dist, in_ind = tree.query([X[i]], k=flag_round)
-            #            if ((index_ano in in_ind[0])) :#or (check_in_array(in_ind[0], inverse_neighboor) == 1):
-            #                inverse_neighboor = np.append(inverse_neighboor,
-            #                    [[index_dist, i]], axis=1)  # np.append(inverse_neighboor, [index_dist, i], axis=0)
-            #                inverse_neighboor_temp = np.append(inverse_neighboor_temp, i)
-            #len_stop = len(inverse_neighboor)
-            #if len_start == len_stop:
-            #    flag_stop += 1
-            #    flag_round += 1
-            #else:
-            #    # Reset flag_stop and flag_round when found
-            #    flag_stop = 0
-            #if len(inverse_neighboor) > limit_size:
-            #    break
-
+            len_start = len(inverse_neighboor)
+            dist, ind = tree.query([anomaly_point], k=flag_round)
+            for index_dist, i in enumerate(ind[0]):
+                if [index_dist, i] not in inverse_neighboor:
+                    if inverse_neighboor.size != 0:
+                        if i not in inverse_neighboor_temp:
+                            in_dist, in_ind = tree.query([X[i]], k=flag_round)
+                            if ((index_ano in in_ind[0])) :#or (check_in_array(in_ind[0], inverse_neighboor) == 1):
+                                inverse_neighboor = np.append(inverse_neighboor, [[index_dist, i]], axis=0)  # np.append(inverse_neighboor, [index_dist, i], axis=0)
+                                inverse_neighboor_temp = np.append(inverse_neighboor_temp, i)
+                    else:
+                        in_dist, in_ind = tree.query([X[i]], k=flag_round)
+                        if ((index_ano in in_ind[0])) :#or (check_in_array(in_ind[0], inverse_neighboor) == 1):
+                            inverse_neighboor = np.append(inverse_neighboor,
+                                [[index_dist, i]], axis=1)  # np.append(inverse_neighboor, [index_dist, i], axis=0)
+                            inverse_neighboor_temp = np.append(inverse_neighboor_temp, i)
+            len_stop = len(inverse_neighboor)
+            if len_start == len_stop:
+                flag_stop += 1
+                flag_round += 1
+            else:
+                # Reset flag_stop and flag_round when found
+                flag_stop = 0
+            if len(inverse_neighboor) > limit_size:
+                break
         end_time = time.time();
         #print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
-        return end_time-start_time
+        return inverse_neighboor
 
     async def calculate_z_value(executor):
         #print(normal_point)
@@ -201,7 +198,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         ]
         completed, pending = await asyncio.wait(blocking_tasks)
         results = [t.result() for t in completed]
-        print(sum(results))
+        print(results)
 
         #nomaly_neighboor = np.array(find_inverneghboor_of_point_blocking(normal_point), dtype=np.int32)
         #print("Run time {} point: {}".format(normal_point, time.time()-s))
@@ -210,6 +207,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         #    Z[NN_pair[1]] = Z[NN_pair[1]] + (1 - result_dta['anomaly_score'][normal_point]) - NN_pair[0] * alpha if (1 - result_dta['anomaly_score'][normal_point]) - \
         #                                                                                                            NN_pair[0] * alpha > 0 else \
         #        Z[NN_pair[1]]
+        return time.time()-s
 
     # Calculate Z
     event_loop = asyncio.get_event_loop()

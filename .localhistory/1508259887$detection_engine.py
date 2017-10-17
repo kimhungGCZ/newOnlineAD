@@ -120,9 +120,6 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     start_time_calculate_Y = time.time()
     # Calculate Y
-    executor = concurrent.futures.ThreadPoolExecutor(
-        max_workers=16,
-    )
     tasks = []
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -131,7 +128,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         tasks.append(asyncio.ensure_future(calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potential_anomaly, raw_dta, result_dta, std_sec_der, tree, X, Y)))
 
     loop.run_until_complete(asyncio.wait(tasks))
-#    loop.close()
+    loop.close()
     backup_draw = result_dta.copy()
 
     # Calculate final score
@@ -150,8 +147,11 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     normal_index = np.random.choice(normal_index, int(len(normal_index) * 0.2), replace=False)
 
-    def find_inverneghboor_of_point_blocking(index_ano):
-        start_time = time.time();
+    async def calculate_z_value(normal_point):
+        #print(normal_point)
+        #await asyncio.sleep(1)  await loop.run_in_executor(ProcessPoolExecutor(), sleep, delay)
+        index_ano = normal_point
+        s= time.time()
         inverse_neighboor = np.array([[]], dtype=np.int64)
         inverse_neighboor_temp = np.array([[]], dtype=np.int64)
         anomaly_point = X[index_ano]
@@ -159,7 +159,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         flag_round = 2
         while flag_stop <= int(limit_size/2):
             time.sleep(0.01)
-            flag_stop +=1
+            flag_stop += 1
             #len_start = len(inverse_neighboor)
             #dist, ind = tree.query([anomaly_point], k=flag_round)
             #for index_dist, i in enumerate(ind[0]):
@@ -186,39 +186,23 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
             #if len(inverse_neighboor) > limit_size:
             #    break
 
-        end_time = time.time();
-        #print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
-        return end_time-start_time
-
-    async def calculate_z_value(executor):
-        #print(normal_point)
-        #await asyncio.sleep(1)  await loop.run_in_executor(ProcessPoolExecutor(), sleep, delay)
-        s= time.time()
-        loop = asyncio.get_event_loop()
-        blocking_tasks = [
-            loop.run_in_executor(executor, find_inverneghboor_of_point_blocking, normal_point)
-            for normal_point in normal_index
-        ]
-        completed, pending = await asyncio.wait(blocking_tasks)
-        results = [t.result() for t in completed]
-        print(sum(results))
-
-        #nomaly_neighboor = np.array(find_inverneghboor_of_point_blocking(normal_point), dtype=np.int32)
+        nomaly_neighboor = np.array(inverse_neighboor, dtype=np.int32)
         #print("Run time {} point: {}".format(normal_point, time.time()-s))
         #nomaly_neighboor = np.array(await loop.run_in_executor(ThreadPoolExecutor(), cmfunc.find_inverneghboor_of_point, tree, X, normal_point, limit_size), dtype=np.int32)
-        #for NN_pair in nomaly_neighboor:
-        #    Z[NN_pair[1]] = Z[NN_pair[1]] + (1 - result_dta['anomaly_score'][normal_point]) - NN_pair[0] * alpha if (1 - result_dta['anomaly_score'][normal_point]) - \
-        #                                                                                                            NN_pair[0] * alpha > 0 else \
-        #        Z[NN_pair[1]]
+        for NN_pair in nomaly_neighboor:
+            Z[NN_pair[1]] = Z[NN_pair[1]] + (1 - result_dta['anomaly_score'][normal_point]) - NN_pair[0] * alpha if (1 - result_dta['anomaly_score'][normal_point]) - \
+                                                                                                                    NN_pair[0] * alpha > 0 else \
+                Z[NN_pair[1]]
+        return time.time()-s
 
     # Calculate Z
-    event_loop = asyncio.get_event_loop()
-    try:
-        event_loop.run_until_complete(
-            calculate_z_value(executor)
-        )
-    finally:
-        event_loop.close()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    tasks = []
+    for normal_point in normal_index:
+        tasks.append(asyncio.ensure_future(calculate_z_value(normal_point)))
+    returnvalue = loop.run_until_complete(asyncio.gather(*tasks))  
+    print(sum(returnvalue))
         
 
     result_dta.anomaly_score = result_dta.anomaly_score - Z

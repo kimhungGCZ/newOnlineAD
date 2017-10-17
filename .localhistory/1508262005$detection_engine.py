@@ -121,7 +121,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     start_time_calculate_Y = time.time()
     # Calculate Y
     executor = concurrent.futures.ThreadPoolExecutor(
-        max_workers=16,
+        max_workers=3,
     )
     tasks = []
     loop = asyncio.new_event_loop()
@@ -185,7 +185,6 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
             #    flag_stop = 0
             #if len(inverse_neighboor) > limit_size:
             #    break
-
         end_time = time.time();
         #print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
         return end_time-start_time
@@ -201,7 +200,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         ]
         completed, pending = await asyncio.wait(blocking_tasks)
         results = [t.result() for t in completed]
-        print(sum(results))
+        print(results)
 
         #nomaly_neighboor = np.array(find_inverneghboor_of_point_blocking(normal_point), dtype=np.int32)
         #print("Run time {} point: {}".format(normal_point, time.time()-s))
@@ -210,6 +209,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         #    Z[NN_pair[1]] = Z[NN_pair[1]] + (1 - result_dta['anomaly_score'][normal_point]) - NN_pair[0] * alpha if (1 - result_dta['anomaly_score'][normal_point]) - \
         #                                                                                                            NN_pair[0] * alpha > 0 else \
         #        Z[NN_pair[1]]
+        return time.time()-s
 
     # Calculate Z
     event_loop = asyncio.get_event_loop()

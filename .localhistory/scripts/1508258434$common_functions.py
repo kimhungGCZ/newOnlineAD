@@ -268,9 +268,9 @@ def plot_data_all(charName,data, mode,symbol,name):
 
     # Working online
     #py.plot(fig, filename=charName)
-    #return py.plot(dict(data=fig,layout=layout), filename=charName)
+    return py.plot(dict(data=fig,layout=layout), filename=charName)
     # Working Offline
-    plotly.offline.plot(dict(data=fig,layout=layout), filename=charName)
+    #plotly.offline.plot(dict(data=fig,layout=layout), filename=charName)
 
 def plot_data_barchart(charName,data, name = ['a', 'b', 'c', 'd', 'e', 'f']):
     data_1 = []

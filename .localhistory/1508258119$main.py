@@ -64,7 +64,7 @@ def main_function(DATA_FILE):
     print("Total time: {}".format(end - start))
     return detect_final_result
 
-main_function("2004DF")
+#main_function("2004DF")
 
 
 # do some other stuff in the main process

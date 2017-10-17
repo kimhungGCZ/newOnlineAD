@@ -121,7 +121,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     start_time_calculate_Y = time.time()
     # Calculate Y
     executor = concurrent.futures.ThreadPoolExecutor(
-        max_workers=16,
+        max_workers=3,
     )
     tasks = []
     loop = asyncio.new_event_loop()
