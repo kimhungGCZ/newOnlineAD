@@ -29,8 +29,7 @@ def getCSVData(dataPath):
     return data
 
 
-def find_inverneghboor_of_point_blocking(alpha,index_ano, X, tree,  result_dta, Z):
-        limit_size = int(1 / alpha)
+def find_inverneghboor_of_point_blocking(limit_size,index_ano, X, tree,  result_dta, Z):
         start_time_S = time.time();
         inverse_neighboor = set()
         inverse_neighboor_temp = set()
@@ -152,14 +151,15 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     Z = np.zeros(len(result_dta['anomaly_score']))
     X = list(map(lambda x: [x, result_dta.values[x][1]], np.arange(len(result_dta.values))))
     # dt=DistanceMetric.get_metric('pyfunc',func=mydist)
-    tree = nb.KDTree(X, leaf_size=200)
+    tree = nb.KDTree(X, leaf_size=50)
     potential_anomaly = []
+    
+
+    start_time_calculate_Y = time.time()
+    # Calculate Y
     executor = concurrent.futures.ThreadPoolExecutor(
         max_workers=1,
     )
-    start_time_calculate_Y = time.time()
-    # Calculate Y
-    
 
     tasks = []
     loop = asyncio.new_event_loop()
@@ -195,7 +195,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         s= time.time()
         loop = asyncio.get_event_loop()
         blocking_tasks = [
-            loop.run_in_executor(executor, find_inverneghboor_of_point_blocking, alpha, normal_point, X, tree,  result_dta, Z)
+            loop.run_in_executor(executor, find_inverneghboor_of_point_blocking, normal_point, X, tree,  result_dta, Z)
             for normal_point in sorted(normal_index)
         ]
         completed, pending = await asyncio.wait(blocking_tasks)

@@ -152,10 +152,10 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     Z = np.zeros(len(result_dta['anomaly_score']))
     X = list(map(lambda x: [x, result_dta.values[x][1]], np.arange(len(result_dta.values))))
     # dt=DistanceMetric.get_metric('pyfunc',func=mydist)
-    tree = nb.KDTree(X, leaf_size=200)
+    tree = nb.KDTree(X, leaf_size=50)
     potential_anomaly = []
     executor = concurrent.futures.ThreadPoolExecutor(
-        max_workers=1,
+        max_workers=4,
     )
     start_time_calculate_Y = time.time()
     # Calculate Y
