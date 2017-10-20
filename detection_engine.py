@@ -38,7 +38,7 @@ def find_inverneghboor_of_point_blocking(alpha,index_ano, X, tree,  result_dta, 
         flag_stop = 0
         flag_round = 2
         len_inverse_neighboor = 0
-        while flag_stop <= int(limit_size/2):
+        while flag_stop <= limit_size:
             #time.sleep(0.05)
             #flag_stop +=1
             len_start = len_inverse_neighboor
@@ -183,11 +183,23 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     # normal_index =
     # np.array(np.argsort(result_dta['anomaly_score']))[:int((0.4 *
     # len(result_dta['anomaly_score'])))]
-    normal_index = [i for i, value in enumerate(result_dta['anomaly_score']) if
-                    value <= np.percentile(result_dta['anomaly_score'], 20)]
+    data_length = len(result_dta['anomaly_score'])
+    def filter_function_z(array, point, range, len_array):
+        if point > range and point < (len_array - range):
+            return max(array[np.arange(point-range, point + range)])
+        elif point < range:
+            return max(array[np.arange(0, 2*range)])
+        else:
+            return max(array[np.arange(len_array-2*range, len_array - 1)])
 
-    normal_index = np.random.choice(normal_index, int(len(normal_index) * 0.2), replace=False)
+    #normal_index = [i for i, value in enumerate(result_dta['anomaly_score']) if value <= np.percentile(result_dta['anomaly_score'], 20)]
+    ssss = time.time()
+    normal_index = [i for i, value in enumerate(result_dta['anomaly_score']) if 
+                    filter_function_z(result_dta['anomaly_score'],i,limit_size/2,data_length) > 0 and value <= np.percentile(result_dta['anomaly_score'], 20)]
+    print("Chossing time: {}".format(time.time() - ssss))
 
+    #normal_index = np.random.choice(normal_index, int(len(normal_index) * 0.2), replace=False)
+    #normal_index = [i for i in normal_index if i % (limit_size/5) == 0]
 
     async def calculate_z_value(executor):
         #print(normal_point)
@@ -283,6 +295,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     end_time_calculate_changepoint = time.time()
     print("Calculating Change Point Time: {}".format(start_time_calculate_changepoint - end_time_calculate_changepoint))
+    """
     chartmess = cmfunc.plot_data_all(DATA_FILE,
                          [[list(range(0, len(raw_dta.value))), raw_dta.value],
                           [detect_final_result[0], raw_dta.value[detect_final_result[0]]],
@@ -290,5 +303,6 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
                          ['lines', 'markers', 'markers'], [None, 'circle', 'circle', 'x', 'x'],
                          ['Raw data', "Detected Change Point",
                           "Detected Anomaly Point"])
-    return [detect_final_result]
+                          """
+    return detect_final_result
     #return [detect_final_result,chartmess]

@@ -5,13 +5,13 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{830fa8a6-4fa9-4bbd-ac0f-5d8ce57832b2}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>main.py</StartupFile>
+    <StartupFile>optimize_parameter_testing.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <InterpreterId>Global|PythonCore|3.6</InterpreterId>
+    <InterpreterId>Global|ContinuumAnalytics|Anaconda36-64</InterpreterId>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -45,6 +45,16 @@
     <Compile Include="detection_engine.py" />
     <Compile Include="hello.py" />
     <Compile Include="main.py" />
+    <Compile Include="mle\distributions\__init__.py" />
+    <Compile Include="mle\minuit.py" />
+    <Compile Include="mle\model.py" />
+    <Compile Include="mle\tests\__init__.py" />
+    <Compile Include="mle\util.py" />
+    <Compile Include="mle\variable.py" />
+    <Compile Include="mle\__init__.py" />
+    <Compile Include="optimize_parameter_testing.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="scripts\add_labels_to_data.py" />
     <Compile Include="scripts\combine_labels.py" />
     <Compile Include="scripts\common_functions.py" />
@@ -59,12 +69,16 @@
     <Compile Include="setup.py" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="mle\" />
+    <Folder Include="mle\distributions\" />
+    <Folder Include="mle\tests\" />
     <Folder Include="scripts\" />
     <Folder Include="scripts\__pycache__\" />
     <Folder Include="static" />
     <Folder Include="templates" />
   </ItemGroup>
   <ItemGroup>
+    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
     <InterpreterReference Include="Global|PythonCore|2.7" />
     <InterpreterReference Include="Global|PythonCore|3.6" />
   </ItemGroup>
