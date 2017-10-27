@@ -25,7 +25,7 @@ def getGCZDataFrame(deviceID):
     webURL = urllib.urlopen(request)
     tem_data = json.load(webURL)
     tem_data.sort(key=lambda x: x[0])
-    data = [i[1] for index, i in enumerate(tem_data) if i[1] != None]# and index < 2000]
+    data = [i[1] for index, i in enumerate(tem_data) if i[1] != None and i[1] > 0]# and index < 2000]
     #plt.plot(data)
     #plt.show()
     ts = time.time()
