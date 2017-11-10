@@ -85,65 +85,66 @@ detect_final_result = main_function("2004DF")
 print("The list of change points: {}".format(detect_final_result[1][0]))
 print("The list of anomaly points: {}".format(detect_final_result[1][1]))
 
-def fitFunc_2(x, b, c):
-    return b*x[0] + c*x[1]
-def fitFunc_3(x, b, c, d):
-    return b*x[0] + c*x[1] + d*x[2]
-##################### Prediction State #################################
-raw_data = detect_final_result[0].value.values
-anomaly_list = detect_final_result[1][1]
-anomaly_list_array = np.array(anomaly_list)
-raw_data = raw_data[0:len(raw_data)-10]
-raw_data = np.delete(raw_data, anomaly_list)
-change_points = [0] + detect_final_result[1][0]
-# Update changepoint list after remove anomaly point.
-change_points = [i - len(anomaly_list_array[anomaly_list_array < i]) for i in change_points]
-data_test_range = []
-data_test_value = []
-data_predicting_test = []
-data_predicting_plot = []
-plt.plot(raw_data)
-if len(change_points) < 3:
-    start_range = np.arange(1,len(change_points)+1)
-else:
-    start_range = np.arange(1,4)
-
-for i in start_range:
-   change_point = change_points[-i]
-   if (i == 1):
-       data_train_size = int((len(raw_data) - change_point)*0.2);
-       data_test_range = np.arange(data_train_size, len(raw_data) - change_point);
-       data_test_value = raw_data[change_point+ data_test_range]
-       plt.plot(change_point+ data_test_range, data_test_value)
-       plt.show()
-   else:
-       data_train_size = change_points[-i+1] - change_points[-i] - 1
-
-   data_train_X = np.arange(0, data_train_size)
-   if (i == 1):
-       data_train_Y = raw_data[change_point:change_point+data_train_size]
-   else:
-       data_train_Y = raw_data[change_point:change_point+data_train_size]*(raw_data[change_points[-1]]/raw_data[change_points[-i]])
-    
-   plt.plot(data_train_X, data_train_Y)
-   plt.show()
-   ####  BUIDING MODEL ####
-   ridge_1 = Ridge(alpha=10)
-   ridge_1.fit(data_train_X.reshape(-1,1),data_train_Y)
-   print("Ridge model:{} + {}".format(pretty_print_linear(ridge_1.coef_),ridge_1.intercept_))
-
-   data_predicting_test.append(ridge_1.predict(data_test_range.reshape(-1,1)))
-   data_predicting_plot.append(ridge_1.predict(np.arange(0, len(raw_data) - change_points[-1]).reshape(-1,1)))
-
-if len(change_points) >= 3:
-    fitParams, fitCovariances = curve_fit(fitFunc_3, data_predicting_test, data_test_value, bounds=(0, [1., 1., 1.]))
-elif len(change_points) == 2:
-    fitParams, fitCovariances = curve_fit(fitFunc_2, data_predicting_test, data_test_value, bounds=(0, [1., 1.]))
-else:
-    fitParams, fitCovariances = data_predicting_test[0]
-print('fit coefficients:{}'.format(fitParams))
-print('Standard deviation error: {}'.format(np.sqrt(np.diag(fitCovariances))))
-
-plt.plot(np.arange(0, len(raw_data) - change_points[-1]), fitFunc_3(data_predicting_plot, *fitParams), 'g--', label='fit-with-bounds')
-plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
-plt.show()
+#
+# def fitFunc_2(x, b, c):
+#     return b*x[0] + c*x[1]
+# def fitFunc_3(x, b, c, d):
+#     return b*x[0] + c*x[1] + d*x[2]
+# ##################### Prediction State #################################
+# raw_data = detect_final_result[0].value.values
+# anomaly_list = detect_final_result[1][1]
+# anomaly_list_array = np.array(anomaly_list)
+# raw_data = raw_data[0:len(raw_data)-10]
+# raw_data = np.delete(raw_data, anomaly_list)
+# change_points = [0] + detect_final_result[1][0]
+# # Update changepoint list after remove anomaly point.
+# change_points = [i - len(anomaly_list_array[anomaly_list_array < i]) for i in change_points]
+# data_test_range = []
+# data_test_value = []
+# data_predicting_test = []
+# data_predicting_plot = []
+# plt.plot(raw_data)
+# if len(change_points) < 3:
+#     start_range = np.arange(1,len(change_points)+1)
+# else:
+#     start_range = np.arange(1,4)
+#
+# for i in start_range:
+#    change_point = change_points[-i]
+#    if (i == 1):
+#        data_train_size = int((len(raw_data) - change_point)*0.2);
+#        data_test_range = np.arange(data_train_size, len(raw_data) - change_point);
+#        data_test_value = raw_data[change_point+ data_test_range]
+#        plt.plot(change_point+ data_test_range, data_test_value)
+#        plt.show()
+#    else:
+#        data_train_size = change_points[-i+1] - change_points[-i] - 1
+#
+#    data_train_X = np.arange(0, data_train_size)
+#    if (i == 1):
+#        data_train_Y = raw_data[change_point:change_point+data_train_size]
+#    else:
+#        data_train_Y = raw_data[change_point:change_point+data_train_size]*(raw_data[change_points[-1]]/raw_data[change_points[-i]])
+#
+#    plt.plot(data_train_X, data_train_Y)
+#    plt.show()
+#    ####  BUIDING MODEL ####
+#    ridge_1 = Ridge(alpha=10)
+#    ridge_1.fit(data_train_X.reshape(-1,1),data_train_Y)
+#    print("Ridge model:{} + {}".format(pretty_print_linear(ridge_1.coef_),ridge_1.intercept_))
+#
+#    data_predicting_test.append(ridge_1.predict(data_test_range.reshape(-1,1)))
+#    data_predicting_plot.append(ridge_1.predict(np.arange(0, len(raw_data) - change_points[-1]).reshape(-1,1)))
+#
+# if len(change_points) >= 3:
+#     fitParams, fitCovariances = curve_fit(fitFunc_3, data_predicting_test, data_test_value, bounds=(0, [1., 1., 1.]))
+# elif len(change_points) == 2:
+#     fitParams, fitCovariances = curve_fit(fitFunc_2, data_predicting_test, data_test_value, bounds=(0, [1., 1.]))
+# else:
+#     fitParams, fitCovariances = data_predicting_test[0]
+# print('fit coefficients:{}'.format(fitParams))
+# print('Standard deviation error: {}'.format(np.sqrt(np.diag(fitCovariances))))
+#
+# plt.plot(np.arange(0, len(raw_data) - change_points[-1]), fitFunc_3(data_predicting_plot, *fitParams), 'g--', label='fit-with-bounds')
+# plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
+# plt.show()
