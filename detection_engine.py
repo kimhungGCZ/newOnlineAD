@@ -203,12 +203,16 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         print("The sum times of calculating Y: {}".format(sum(results)))
 
     # Starting calculating function
-    event_loop = asyncio.get_event_loop()
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    event_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(event_loop)
     try:
         event_loop.run_until_complete(
             calculate_Y_value_big(executor_y)
         )
     finally:
+        event_loop.close()
         print("Finish threading calculation of Y")
 
     # Calculate final score
@@ -239,7 +243,8 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         results = [t.result() for t in completed]
         print("The sum times of calculating Z: {}".format(sum(results)))
 
-    event_loop = asyncio.get_event_loop()
+    event_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(event_loop)
     try:
         event_loop.run_until_complete(
             calculate_z_value(executor)
