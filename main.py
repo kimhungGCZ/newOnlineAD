@@ -51,9 +51,9 @@ def main_function(DATA_FILE):
     print("Length Data {}:".format(len(raw_dta)))
 
     # dao ham bac 1
-    #der = cmfunc.change_after_k_seconds(raw_dta.value, k=1)
+    der = cmfunc.change_after_k_seconds_with_abs(raw_dta, k=1)
     # dao ham bac 2
-    sec_der = cmfunc.change_after_k_seconds_with_abs(raw_dta, k=1)
+    sec_der = cmfunc.change_after_k_seconds_with_abs(der, k=1)
 
     median_sec_der = np.median(sec_der)
     std_sec_der = np.std(sec_der)
@@ -62,6 +62,7 @@ def main_function(DATA_FILE):
         enumerate(sec_der)))
     breakpoint_candidates = (breakpoint_candidates - np.min(breakpoint_candidates)) / (np.max(breakpoint_candidates) - np.min(breakpoint_candidates))
 
+    breakpoint_candidates = np.insert(breakpoint_candidates, 0, 0)
     breakpoint_candidates = np.insert(breakpoint_candidates, 0, 0)
 
     from multiprocessing.pool import ThreadPool
@@ -82,8 +83,10 @@ def main_function(DATA_FILE):
 
     print("The list of change points: {}".format(detect_final_result[0]))
     print("The list of anomaly points: {}".format(detect_final_result[1]))
+    return detect_final_result
 
-    def fitFunc_1(x, a, b):
+    """
+        def fitFunc_1(x, a, b):
         return a * x + b
 
     def fitFunc_2(x, b, c):
@@ -205,8 +208,9 @@ def main_function(DATA_FILE):
 
 
     return [time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3]
+    """
 
-#detect_final_result = main_function("1B3B2F")
+detect_final_result = main_function("1B3B2F")
 
 
 
