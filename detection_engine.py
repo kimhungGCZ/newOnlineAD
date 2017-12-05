@@ -96,19 +96,30 @@ def find_inverneghboor_of_point_blocking(alpha, index_ano_list, result_dta, Z):
 
 def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potential_anomaly, raw_dta, result_dta,
                       std_sec_der, tree, X, Y):
-    sssss = time.time();
-    start_size = 32
-    increase_size = start_size;
+
+    start_size = 100
+    increase_size = 0
+    # increase_size = start_size;
     query_point = anomaly_point + start_size
-    flag_running = False
-    while increase_size>=1:
+    # flag_running = False
+    # while increase_size>1:
+    #     dist, ind = tree.query([X[int(query_point)]], k=start_size + 1)
+    #     dist_ano, ind_ano = tree.query([X[int(anomaly_point)]], k=start_size + 1)
+    #     if anomaly_point in ind[0]:
+    #         increase_size = increase_size;
+    #         query_point = query_point + increase_size;
+    #     else:
+    #         increase_size = increase_size/2;
+    #         query_point = query_point - increase_size;
+    sssss = time.time();
+    while increase_size == 0:
         dist, ind = tree.query([X[int(query_point)]], k=start_size)
-        if anomaly_point in ind[0]:
-            increase_size = increase_size;
-            query_point = query_point + increase_size;
+        if np.max(ind[0]) <= query_point:
+            increase_size = 1
         else:
-            increase_size = increase_size/2;
-            query_point = query_point - increase_size;
+            query_point = query_point + 1
+    print("Finding time {}".format(time.time() - sssss))
+
 
 
     query_array = raw_dta.value[int(anomaly_point):int(query_point)]
@@ -194,7 +205,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     Z = np.zeros(len(result_dta['anomaly_score']))
     X = list(map(lambda x: [x, result_dta.values[x][1]], np.arange(len(result_dta.values))))
 
-    tree = nb.KDTree(X, leaf_size=200)
+    tree = nb.KDTree(X, leaf_size=200, metric='euclidean')
     potential_anomaly = []
     executor_y = concurrent.futures.ThreadPoolExecutor(
         max_workers=1,

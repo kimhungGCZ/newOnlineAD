@@ -29,6 +29,10 @@ import warnings
 
 warnings.simplefilter('ignore')
 
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0))
+    return (cumsum[N:] - cumsum[:-N]) / float(N)
+
 def pretty_print_linear(coefs, names=None, sort=False):
     if names == None:
         names = ["X%s" % x for x in range(len(coefs))]
@@ -65,10 +69,21 @@ def main_function(DATA_FILE):
     breakpoint_candidates = np.insert(breakpoint_candidates, 0, 0)
     breakpoint_candidates = np.insert(breakpoint_candidates, 0, 0)
 
-    from multiprocessing.pool import ThreadPool
-    pool = ThreadPool(processes=4)
-    final_f = []
-    final_combination = []
+    data_value = raw_dataframe.value;
+    split_data = np.array_split(data_value, int(len(data_value) / 10))
+    std_whole_dataset = np.std(data_value)
+    print(0.03 * std_whole_dataset)
+    # sdev_array = [second_dereviate(i) for i in split_data]
+    sdev_array = [np.mean(cmfunc.change_after_k_seconds(running_mean(i.values,2))) for i in split_data]
+
+    #bins = np.array([0.0 - float("inf"), 0.0 - 0.03 * std_whole_dataset, 0.0 + 0.03 * std_whole_dataset, float("inf")])
+    bins = np.array([0.0 - float("inf"), 0.0 - 0.5 , 0.0 + 0.05 , float("inf")])
+
+    inds = np.digitize(sdev_array, bins)
+    plt.plot(data_value)
+    plt.show()
+
+
 
     ############### To debug specific combination:############################
     final_index = 0
@@ -193,7 +208,7 @@ def main_function(DATA_FILE):
     time_model_2_to_0 =(solve(fitFunc_1(x, *model_params[1]), x))
     time_model_3_to_0 =(solve(fitFunc_1(x, *model_params[2]), x))
     print("Estimate point to reach 0 at model 1: {}".format(time_model_1_to_0))
-    print("Estimate point to reach 0 at model 2: {}".format(time_model_2_to_0))
+    print("Estimate point to reach 0 at model 2: {}".format(time_model_2_to_0)) 
     print("Estimate point to reach 0 at model 3: {}".format(time_model_3_to_0))
 
     finish_prediction_time = datetime.strptime(time_stamp[-1], "%Y-%m-%d %H:%M:%S")
@@ -210,7 +225,7 @@ def main_function(DATA_FILE):
     return [time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3]
     """
 
-detect_final_result = main_function("1B3B2F")
+detect_final_result = main_function("2004DF")
 
 
 
