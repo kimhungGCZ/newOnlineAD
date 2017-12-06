@@ -60,6 +60,7 @@ def main_function(DATA_FILE):
     sec_der = cmfunc.change_after_k_seconds_with_abs(der, k=1)
 
     median_sec_der = np.median(sec_der)
+    mean_sec_der = np.mean(sec_der)
     std_sec_der = np.std(sec_der)
 
     breakpoint_candidates = list(map(lambda x: (x[1] - median_sec_der) - np.abs(std_sec_der) if (x[1] - median_sec_der) - np.abs(std_sec_der) > 0 else 0,

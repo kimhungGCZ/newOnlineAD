@@ -97,52 +97,60 @@ def find_inverneghboor_of_point_blocking(alpha, index_ano_list, result_dta, Z):
 def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potential_anomaly, raw_dta, result_dta,
                       std_sec_der, tree, X, Y):
 
-    start_size = 100
-    increase_size = 0
-    # increase_size = start_size;
-    query_point = anomaly_point + start_size
-    # flag_running = False
-    # while increase_size>1:
-    #     dist, ind = tree.query([X[int(query_point)]], k=start_size + 1)
-    #     dist_ano, ind_ano = tree.query([X[int(anomaly_point)]], k=start_size + 1)
-    #     if anomaly_point in ind[0]:
-    #         increase_size = increase_size;
-    #         query_point = query_point + increase_size;
+    # start_size = 100
+    # increase_size = 0
+    # # increase_size = start_size;
+    # query_point = anomaly_point + start_size
+    # # flag_running = False
+    # # while increase_size>1:
+    # #     dist, ind = tree.query([X[int(query_point)]], k=start_size + 1)
+    # #     dist_ano, ind_ano = tree.query([X[int(anomaly_point)]], k=start_size + 1)
+    # #     if anomaly_point in ind[0]:
+    # #         increase_size = increase_size;
+    # #         query_point = query_point + increase_size;
+    # #     else:
+    # #         increase_size = increase_size/2;
+    # #         query_point = query_point - increase_size;
+    #
+    # while increase_size == 0:
+    #     dist, ind = tree.query([X[int(query_point)]], k=start_size)
+    #     if np.max(ind[0]) <= query_point:
+    #         increase_size = 1
     #     else:
-    #         increase_size = increase_size/2;
-    #         query_point = query_point - increase_size;
+    #         query_point = query_point + 1
+    # print("Finding time {}".format(time.time() - sssss))
+    #
+    #
+    #
+    # query_array = raw_dta.value[int(anomaly_point):int(query_point)]
+    # std_checked_dataset = np.std(query_array)
+    # split_data = np.array_split(query_array, int(len(query_array) / 10))
+    # sdev_array = [np.mean(cmfunc.change_after_k_seconds(i)) for i in split_data]
+    #
+    # bins = np.array([0.0 - float("inf"), 0.0 - 0.03 * std_checked_dataset, 0.0 + 0.03 * std_checked_dataset, float("inf")])
+    # inds = np.digitize(sdev_array, bins)
+    # plt.hist(inds)
+    # plt.show()
+    # max_access = 0
+    # max_bin = 0
+    # for bin_index in np.arange(1,4):
+    #     if (inds == bin_index).sum() > max_access:
+    #         max_bin = bin_index
     sssss = time.time();
-    while increase_size == 0:
-        dist, ind = tree.query([X[int(query_point)]], k=start_size)
-        if np.max(ind[0]) <= query_point:
-            increase_size = 1
-        else:
-            query_point = query_point + 1
-    print("Finding time {}".format(time.time() - sssss))
 
-
-
-    query_array = raw_dta.value[int(anomaly_point):int(query_point)]
-    std_checked_dataset = np.std(query_array)
-    split_data = np.array_split(query_array, int(len(query_array) / 10))
-    sdev_array = [np.mean(cmfunc.change_after_k_seconds(i)) for i in split_data]
-
-    bins = np.array([0.0 - float("inf"), 0.0 - 0.03 * std_checked_dataset, 0.0 + 0.03 * std_checked_dataset, float("inf")])
-    inds = np.digitize(sdev_array, bins)
-    plt.hist(inds)
-    plt.show()
-    max_access = 0
-    max_bin = 0
-    for bin_index in np.arange(1,4):
-        if (inds == bin_index).sum() > max_access:
-            max_bin = bin_index
+    flag_running = True;
 
 
     if flag_running == True:
-        if anomaly_point - 1 not in potential_anomaly:
-            anomaly_neighboor_detect = np.array(
-                cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size),
-                dtype=np.int32)
+        if anomaly_point - 1 not in potential_anomaly and anomaly_point - 2 not in potential_anomaly:
+            if anomaly_point - 1 not in potential_anomaly:
+                anomaly_neighboor_detect = np.array(
+                    cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size),
+                    dtype=np.int32)
+            else:
+                anomaly_neighboor_detect = np.array(
+                    cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 2, limit_size),
+                    dtype=np.int32)
             if len(set(anomaly_neighboor_detect[:, 1]).intersection(potential_anomaly)) == 0:
                 anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
                                              dtype=np.int32)
@@ -184,8 +192,8 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potentia
 
 def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
-    median_sec_der = np.median(result_dta['anomaly_score'])
-    std_sec_der = np.std(result_dta['anomaly_score'])
+    median_sec_der = np.mean(result_dta['value'])
+    std_sec_der = np.std(result_dta['value'])
 
     dta_full = result_dta
 
