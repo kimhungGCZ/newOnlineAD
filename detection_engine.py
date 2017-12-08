@@ -139,8 +139,18 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potentia
     sssss = time.time();
 
     flag_running = True;
+    anomaly_neighboor_detect_start = np.array(
+        cmfunc.find_inverneghboor_of_point_2(tree, X, anomaly_point, 100),
+        dtype=np.int32);
+    neighboor_list_start = anomaly_neighboor_detect_start[:,1];
+    anomaly_neighboor_detect_end = np.array(
+        cmfunc.find_inverneghboor_of_point_2(tree, X, sorted(neighboor_list_start)[-1], 100),
+        dtype=np.int32);
+    neighboor_list_end = anomaly_neighboor_detect_end[:, 1];
+    union_set = set(neighboor_list_start).intersection(set(neighboor_list_end))
 
-
+    ############################# THE CODE IS WORK WELL WIH VERSION 1.05, COMMENT TO TEST WITH VERSION 1.06 ######################
+    """
     if flag_running == True:
         if anomaly_point - 1 not in potential_anomaly and anomaly_point - 2 not in potential_anomaly:
             if anomaly_point - 1 not in potential_anomaly:
@@ -186,7 +196,7 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potentia
                         result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
             else:
                 result_dta.anomaly_score[anomaly_point] = 0
-
+    """
     return sssss - time.time()
 
 

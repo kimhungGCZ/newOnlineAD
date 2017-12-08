@@ -81,8 +81,8 @@ def main_function(DATA_FILE):
     bins = np.array([0.0 - float("inf"), 0.0 - 0.5 , 0.0 + 0.05 , float("inf")])
 
     inds = np.digitize(sdev_array, bins)
-    plt.plot(data_value)
-    plt.show()
+    # plt.plot(data_value)
+    # plt.show()
 
 
 
