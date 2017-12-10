@@ -99,10 +99,10 @@ def main_function(DATA_FILE):
 
     print("The list of change points: {}".format(detect_final_result[0]))
     print("The list of anomaly points: {}".format(detect_final_result[1]))
-    return detect_final_result
+    #return detect_final_result
 
-    """
-        def fitFunc_1(x, a, b):
+
+    def fitFunc_1(x, a, b):
         return a * x + b
 
     def fitFunc_2(x, b, c):
@@ -143,7 +143,7 @@ def main_function(DATA_FILE):
     for i in start_range:
         change_point = change_points[-i]
         if (i == 1):
-            data_train_size = int((len(raw_data) - change_point) * 0.9);
+            data_train_size = int((len(raw_data) - change_point) * 0.8);
             data_test_range = np.arange(data_train_size, len(raw_data) - change_point);
             data_test_value = raw_data[change_point + data_test_range]
             # plt.plot(change_point + data_test_range, data_test_value)
@@ -158,8 +158,8 @@ def main_function(DATA_FILE):
             data_train_Y = raw_data[change_point:change_point + data_train_size] * (
             raw_data[change_points[-1]] / raw_data[change_points[-i]])
 
-        # plt.plot(data_train_X, data_train_Y)
-        # plt.show()
+        plt.plot(data_train_X, data_train_Y)
+        plt.show()
 
         ####  BUIDING MODEL ####
         ridge_1 = Ridge(alpha=10)
@@ -224,7 +224,7 @@ def main_function(DATA_FILE):
 
 
     return [time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3]
-    """
+
 
 detect_final_result = main_function("2004DF")
 
