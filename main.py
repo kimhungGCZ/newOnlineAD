@@ -133,6 +133,9 @@ def main_function(DATA_FILE):
     test_size = 10
     raw_data_last_10 = raw_data[-test_size:]
     raw_data = raw_data[:len(raw_data) - test_size]
+    # get last 3 change points
+    change_points = change_points[-3:]
+    data_pattern_size = []
 
     #plt.plot(raw_data)
     if len(change_points) < 3:
@@ -152,6 +155,8 @@ def main_function(DATA_FILE):
             data_train_size = change_points[-i + 1] - change_points[-i] - 1
 
         data_train_X = np.arange(0, data_train_size)
+        data_pattern_size.append([change_point,data_train_size])
+
         if (i == 1):
             data_train_Y = raw_data[change_point:change_point + data_train_size]
         else:
@@ -176,27 +181,37 @@ def main_function(DATA_FILE):
     # plt.plot(data_test_range, data_test_value, label="Real Data")
     # plt.legend();
     # plt.show()
+    ##### Remove the pattern has small size ###########
+    mean_data_pattern = np.mean(np.array(data_pattern_size)[:,1])
+    for in_index, in_value in enumerate(data_pattern_size):
+        if (in_value[1] < mean_data_pattern*0.3):
+            change_points.remove(in_value[0])
+
     if len(change_points) >= 3:
         fitParams, fitCovariances = curve_fit(fitFunc_3, data_predicting_test, data_test_value,
                                               bounds=(0, [1., 1., 1.]))
+        plt.plot(data_test_range, fitFunc_3(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
+        # plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
+        # plt.plot(change_point+ data_test_range, data_test_value, label='test data')
+        plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+                 fitFunc_3(data_predicting_test_last10, *fitParams), label='Test Next Points')
     elif len(change_points) == 2:
         fitParams, fitCovariances = curve_fit(fitFunc_2, data_predicting_test, data_test_value, bounds=(0, [1., 1.]))
+        plt.plot(data_test_range, fitFunc_2(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
+        # plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
+        # plt.plot(change_point+ data_test_range, data_test_value, label='test data')
+        plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+                 fitFunc_2(data_predicting_test_last10, *fitParams), label='Test Next Points')
     else:
         fitParams, fitCovariances = data_predicting_test[0]
     print('fit coefficients:{}'.format(fitParams))
     print('Standard deviation error: {}'.format(np.sqrt(np.diag(fitCovariances))))
 
-    plt.plot(data_test_range, fitFunc_3(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
-    # plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
-    # plt.plot(change_point+ data_test_range, data_test_value, label='test data')
-    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-             fitFunc_3(data_predicting_test_last10, *fitParams), label='Test Next Points')
-    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-             fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[0]), label='1st model prediction')
-    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-             fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[1]), label='2st model prediction')
-    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-             fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[2]), label='3st model prediction')
+
+    # for i in model_params:
+    #     plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+    #              fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[i]),
+    #              label= str(i) +'st model prediction')
     plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size), raw_data_last_10,
              label='Real Next Points')
     plt.legend();
@@ -223,10 +238,10 @@ def main_function(DATA_FILE):
     print("Time to empty by days: {}".format(fitFunc_3([time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3],*fitParams)))
 
 
-    return [time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3]
+    return fitFunc_3([time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3],*fitParams)
 
 
-detect_final_result = main_function("2004DF")
+#detect_final_result = main_function("2004DF")
 
 
 

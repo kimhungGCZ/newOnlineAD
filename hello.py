@@ -49,7 +49,7 @@ def home():
 def run():
     deviceID = request.args.get('deviceID')
     detect_final_result = main.main_function(deviceID)
-    return "".join(str(x) for x in detect_final_result)
+    return str(detect_final_result)
 
 # /* Endpoint to greet and add a new visitor to database.
 # * Send a POST request to localhost:8000/api/visitors with body
