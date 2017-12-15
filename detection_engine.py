@@ -138,7 +138,58 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potentia
     #         max_bin = bin_index
     sssss = time.time();
 
-    flag_running = True;
+    flag_starting = False
+    flag_running = False;
+
+    if anomaly_point - 1 not in potential_anomaly and anomaly_point - 2 not in potential_anomaly:
+        if anomaly_point - 1 not in potential_anomaly:
+            anomaly_neighboor_detect = np.array(
+                cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size),
+                dtype=np.int32)
+        else:
+            anomaly_neighboor_detect = np.array(
+                cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 2, limit_size),
+                dtype=np.int32)
+        if len(set(anomaly_neighboor_detect[:, 1]).intersection(potential_anomaly)) == 0:
+            anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+                                         dtype=np.int32)
+            potential_anomaly.extend([x[1] for x in anomaly_neighboor])
+            flag_starting = True
+        else:
+            consider_point = np.max(
+                [i for i in list(set(range(0, anomaly_point - 1)).difference(set(anomaly_neighboor_detect[:, 1])))
+                 if
+                 i not in potential_anomaly])
+            if (raw_dta.value.values[anomaly_point] - raw_dta.value.values[
+                consider_point] - median_sec_der - std_sec_der > 0):
+                anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+                                             dtype=np.int32)
+                potential_anomaly.extend((x[1] for x in anomaly_neighboor))
+                flag_starting = True
+            else:
+                result_dta.anomaly_score[anomaly_point] = 0
+    else:
+        consider_point = max(set(np.arange(anomaly_point)).difference(set(potential_anomaly)))
+        if (abs(raw_dta.value.values[anomaly_point] - raw_dta.value.values[
+            consider_point]) - median_sec_der - std_sec_der >= 0):
+            anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+                                         dtype=np.int32)
+            potential_anomaly.extend([x[1] for x in anomaly_neighboor])
+            flag_starting = True
+        else:
+            result_dta.anomaly_score[anomaly_point] = 0
+
+    if flag_starting == True:
+        anomaly_neighboor_detect = np.array(
+            cmfunc.find_inverneghboor_of_point_2(tree, X, anomaly_point, limit_size),
+            dtype=np.int32)
+        print("Spreading length of {}: {}".format(anomaly_point, len(anomaly_neighboor_detect)))
+        x = anomaly_neighboor_detect[:, 1]
+        y = result_dta['value'][anomaly_neighboor_detect[:, 1]]
+        m, b = np.polyfit(x, y, 1)
+        print("Coffecient M: {}".format(m))
+
+
 
 
     if flag_running == True:
@@ -207,7 +258,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     # np.array(np.argsort(result_dta['anomaly_score']))[-five_percentage:]
     anomaly_index = np.array([i for i, value in enumerate(result_dta['anomaly_score']) if value > 3 * std_anomaly_set])
 
-    limit_size = int(1 / alpha)
+    limit_size = int(0.05* len(result_dta['anomaly_score']))
     # Y is the anomaly spreding and Z is the normal spreading.
     Y = np.zeros(len(result_dta['anomaly_score']))
     Z = np.zeros(len(result_dta['anomaly_score']))

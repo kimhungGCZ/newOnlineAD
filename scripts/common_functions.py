@@ -192,6 +192,43 @@ def find_inverneghboor_of_point(tree,X, index_ano, limit_size):
     #print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
     return inverse_neighboor
 
+def find_inverneghboor_of_point_2(tree,X, index_ano, limit_size):
+    start_time = time.time();
+    inverse_neighboor = np.array([[]], dtype=np.int64)
+    inverse_neighboor_temp = np.array([[]], dtype=np.int64)
+    anomaly_point = X[index_ano]
+    flag_stop = 0
+    flag_round = 2
+    while flag_stop <= 3:
+        len_start = len(inverse_neighboor)
+        dist, ind = tree.query([anomaly_point], k=flag_round)
+        for index_dist, i in enumerate(ind[0]):
+            if [index_dist, i] not in inverse_neighboor:
+                if inverse_neighboor.size != 0:
+                    if i not in inverse_neighboor_temp:
+                        in_dist, in_ind = tree.query([X[i]], k=flag_round)
+                        if ((index_ano in in_ind[0])) or (check_in_array(in_ind[0], inverse_neighboor) == 1):
+                            inverse_neighboor = np.append(inverse_neighboor, [[index_dist, i]], axis=0)  # np.append(inverse_neighboor, [index_dist, i], axis=0)
+                            inverse_neighboor_temp = np.append(inverse_neighboor_temp, i)
+                else:
+                    in_dist, in_ind = tree.query([X[i]], k=flag_round)
+                    if ((index_ano in in_ind[0])) or (check_in_array(in_ind[0], inverse_neighboor) == 1):
+                        inverse_neighboor = np.append(inverse_neighboor,
+                            [[index_dist, i]], axis=1)  # np.append(inverse_neighboor, [index_dist, i], axis=0)
+                        inverse_neighboor_temp = np.append(inverse_neighboor_temp, i)
+        len_stop = len(inverse_neighboor)
+        if len_start == len_stop:
+            flag_stop += 1
+            flag_round += 1
+        else:
+            # Reset flag_stop and flag_round when found
+            flag_stop = 0
+        if len(inverse_neighboor) > limit_size:
+            break
+    end_time = time.time();
+    #print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
+    return inverse_neighboor
+
 def calcRMS(truthSeries, resultSeries, repairlist):
     cost = 0
     for i in range(0,len(truthSeries), 1):
