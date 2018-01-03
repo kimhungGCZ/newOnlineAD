@@ -146,7 +146,7 @@ def main_function(DATA_FILE):
     for i in start_range:
         change_point = change_points[-i]
         if (i == 1):
-            data_train_size = int((len(raw_data) - change_point) * 0.8);
+            data_train_size = int((len(raw_data) - change_point) * 0.5);
             data_test_range = np.arange(data_train_size, len(raw_data) - change_point);
             data_test_value = raw_data[change_point + data_test_range]
             # plt.plot(change_point + data_test_range, data_test_value)
@@ -167,7 +167,7 @@ def main_function(DATA_FILE):
         plt.show()
 
         ####  BUIDING MODEL ####
-        ridge_1 = Ridge(alpha=10)
+        ridge_1 = Ridge(alpha=1)
         ridge_1.fit(data_train_X.reshape(-1, 1), data_train_Y)
         print("Ridge model {}:{} + {}".format(str(i), pretty_print_linear(ridge_1.coef_), ridge_1.intercept_))
         model_params.append([ridge_1.coef_[0],ridge_1.intercept_])
@@ -209,9 +209,15 @@ def main_function(DATA_FILE):
 
 
     # for i in model_params:
-    #     plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-    #              fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[i]),
-    #              label= str(i) +'st model prediction')
+    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+             fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[0]),
+             label='1st model prediction')
+    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+             fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[1]),
+             label='2st model prediction')
+    plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+             fitFunc_1(np.arange(max(data_test_range), max(data_test_range) + test_size), *model_params[2]),
+             label='3st model prediction')
     plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size), raw_data_last_10,
              label='Real Next Points')
     plt.legend();
@@ -235,13 +241,17 @@ def main_function(DATA_FILE):
     time_per_day_eachDtaPoint_2 = int(time_model_2_to_0[0]*difference_days/difference_distances) - difference_days if (int(time_model_2_to_0[0]*difference_days/difference_distances) - difference_days) >0 else 0
     time_per_day_eachDtaPoint_3 = (int(time_model_3_to_0[0]*difference_days/difference_distances) - difference_days) if int(time_model_3_to_0[0]*difference_days/difference_distances) - difference_days > 0 else 0
 
+    print("Estimate time to reach 0 at model 1: {}".format(time_per_day_eachDtaPoint_1))
+    print("Estimate time to reach 0 at model 2: {}".format(time_per_day_eachDtaPoint_2))
+    print("Estimate time to reach 0 at model 3: {}".format(time_per_day_eachDtaPoint_3))
+
     print("Time to empty by days: {}".format(fitFunc_3([time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3],*fitParams)))
 
 
     return fitFunc_3([time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3],*fitParams)
 
 
-#detect_final_result = main_function("2004DF")
+detect_final_result = main_function("2004DF")
 
 
 
