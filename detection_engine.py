@@ -361,13 +361,13 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     end_time_calculate_changepoint = time.time()
     print("Calculating Change Point Time: {}".format(start_time_calculate_changepoint - end_time_calculate_changepoint))
-    chartmess = cmfunc.plot_data_all(DATA_FILE,
-                                     [[list(range(0, len(raw_dta.value))), raw_dta.value],
-                                      [detect_final_result[0], raw_dta.value[detect_final_result[0]]],
-                                      [detect_final_result[1], raw_dta.value[detect_final_result[1]]]],
-                                     ['lines', 'markers', 'markers'], [None, 'circle', 'circle', 'x', 'x'],
-                                     ['Raw data', "Detected Change Point",
-                                      "Detected Anomaly Point"])
+    # chartmess = cmfunc.plot_data_all(DATA_FILE,
+    #                                  [[list(range(0, len(raw_dta.value))), raw_dta.value],
+    #                                   [detect_final_result[0], raw_dta.value[detect_final_result[0]]],
+    #                                   [detect_final_result[1], raw_dta.value[detect_final_result[1]]]],
+    #                                  ['lines', 'markers', 'markers'], [None, 'circle', 'circle', 'x', 'x'],
+    #                                  ['Raw data', "Detected Change Point",
+    #                                   "Detected Anomaly Point"])
 
     return detect_final_result
     # return [detect_final_result,chartmess]
