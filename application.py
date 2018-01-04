@@ -10,7 +10,7 @@ import main
 # Emit Bluemix deployment event
 cf_deployment_tracker.track()
 
-app = Flask(__name__)
+application =  app = Flask(__name__)
 
 db_name = 'mydb'
 client = None
@@ -93,4 +93,4 @@ def shutdown():
         client.disconnect()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, debug=True)
+    application.run(host='0.0.0.0', port=port, debug=True)
