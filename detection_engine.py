@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import scripts.common_functions as cmfunc
 import sklearn.neighbors as nb
 from sklearn.neighbors import DistanceMetric
-import trollius
 import warnings
 from numpy import mean, absolute
 import time
