@@ -5,7 +5,7 @@ import pandas as pd
 import math as math
 from scipy.stats import norm
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
+
 import scripts.common_functions as cmfunc
 import sklearn.neighbors as nb
 from sklearn.neighbors import DistanceMetric

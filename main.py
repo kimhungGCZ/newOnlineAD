@@ -14,7 +14,6 @@ from datetime import datetime
 import detection_engine as engine
 import scripts.obtain_data as data_engine
 
-import matplotlib.pyplot as plt
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.optimize import curve_fit
@@ -217,18 +216,18 @@ def main_function(DATA_FILE):
     if len(change_points) >= 3:
         fitParams, fitCovariances = curve_fit(fitFunc_3, data_predicting_test, data_test_value,
                                               bounds=(0, [1., 1., 1.]))
-        plt.plot(data_test_range, fitFunc_3(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
+        #plt.plot(data_test_range, fitFunc_3(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
         # plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
         # plt.plot(change_point+ data_test_range, data_test_value, label='test data')
-        plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-                 fitFunc_3(data_predicting_test_last10, *fitParams), label='Test Next Points')
+        #plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+        #         fitFunc_3(data_predicting_test_last10, *fitParams), label='Test Next Points')
     elif len(change_points) == 2:
         fitParams, fitCovariances = curve_fit(fitFunc_2, data_predicting_test, data_test_value, bounds=(0, [1., 1.]))
-        plt.plot(data_test_range, fitFunc_2(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
+        #plt.plot(data_test_range, fitFunc_2(data_predicting_test, *fitParams), 'g--', label='fit-with-bounds')
         # plt.plot(np.arange(0, len(raw_data) - change_points[-1]), raw_data[change_points[-1]:], 'r', label='data')
         # plt.plot(change_point+ data_test_range, data_test_value, label='test data')
-        plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
-                 fitFunc_2(data_predicting_test_last10, *fitParams), label='Test Next Points')
+        #plt.plot(np.arange(max(data_test_range), max(data_test_range) + test_size),
+         #        fitFunc_2(data_predicting_test_last10, *fitParams), label='Test Next Points')
     else:
         fitParams, fitCovariances = data_predicting_test[0]
     print('fit coefficients:{}'.format(fitParams))
