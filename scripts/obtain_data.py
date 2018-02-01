@@ -21,7 +21,7 @@ def getGCZDataFrame(deviceID):
     request_URL = "https://server.humm-box.com/api/devices/" + deviceID + "/fastmeasures?fields=[content_volume]"
     request = urllib.Request(request_URL)
     request.add_header("Authorization",
-                       "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2h1bW0tc2VydmVyLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNTQ5MjcyODgyOTQ0NjU4MzExNiIsImF1ZCI6IkxMSWVDYXpIVEpTOG9kVW1kaHJHMmVuV3dQaW5yajUxIiwiaWF0IjoxNTEzMjcwNTkzLCJleHAiOjE1MTY4NzA1OTN9.qPlnGB-B_00eA6tOi2hJHQlFQMsoRzTnuIX3nqJRtGY")
+                       "bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2h1bW0tc2VydmVyLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDEwNTQ5MjcyODgyOTQ0NjU4MzExNiIsImF1ZCI6IkxMSWVDYXpIVEpTOG9kVW1kaHJHMmVuV3dQaW5yajUxIiwiaWF0IjoxNTE3MzA0ODA0LCJleHAiOjE1MjA5MDQ4MDR9.PR_-vY2Tpyy_CkARXOuaOnwTixyskoNShrqz0XuG1qk")
     webURL = urllib.urlopen(request)
     tem_data = json.load(webURL)
     tem_data.sort(key=lambda x: x[0])

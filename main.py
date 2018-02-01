@@ -163,8 +163,8 @@ def main_function(DATA_FILE):
             data_train_Y = raw_data[change_point:change_point + data_train_size] * (
             raw_data[change_points[-1]] / raw_data[change_points[-i]])
 
-        plt.plot(data_train_X, data_train_Y)
-        plt.show()
+        # plt.plot(data_train_X, data_train_Y)
+        # plt.show()
 
         ####  BUIDING MODEL ####
         ridge_1 = Ridge(alpha=1)
@@ -174,13 +174,13 @@ def main_function(DATA_FILE):
         data_predicting_test.append(ridge_1.predict(data_test_range.reshape(-1, 1)))
         data_predicting_test_last10.append(
             ridge_1.predict(np.arange(max(data_test_range), max(data_test_range) + test_size).reshape(-1, 1)))
-        #plt.plot(data_test_range, ridge_1.predict(data_test_range.reshape(-1, 1)), label="Predict Model " + str(i));
+        plt.plot(data_test_range, ridge_1.predict(data_test_range.reshape(-1, 1)), label="Predict Model " + str(i));
 
         data_predicting_plot.append(ridge_1.predict(np.arange(0, len(raw_data) - change_points[-1]).reshape(-1, 1)))
 
-    # plt.plot(data_test_range, data_test_value, label="Real Data")
-    # plt.legend();
-    # plt.show()
+    plt.plot(data_test_range, data_test_value, label="Real Data")
+    plt.legend();
+    plt.show()
     ##### Remove the pattern has small size ###########
     mean_data_pattern = np.mean(np.array(data_pattern_size)[:,1])
     for in_index, in_value in enumerate(data_pattern_size):
