@@ -226,7 +226,7 @@ def main_function(DATA_FILE):
     return [time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3]
     """
 
-detect_final_result = main_function("2004DF")
+detect_final_result = main_function("1B3AEA")
 
 
 
