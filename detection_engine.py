@@ -17,6 +17,8 @@ import asyncio
 import inspect
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
+import datetime
+import os
 
 from saxpy.saxpy.znorm import znorm
 from saxpy.saxpy.sax import ts_to_string
@@ -100,115 +102,72 @@ def find_inverneghboor_of_point_blocking(alpha, index_ano_list, result_dta, Z):
     return time.time() - start_time_S
 
 
-def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, potential_anomaly, raw_dta, result_dta,
+def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, dict_neighbor, raw_dta, result_dta,
                       std_sec_der, tree, X, Y):
-    # start_size = 100
-    # increase_size = 0
-    # # increase_size = start_size;
-    # query_point = anomaly_point + start_size
-    # # flag_running = False
-    # # while increase_size>1:
-    # #     dist, ind = tree.query([X[int(query_point)]], k=start_size + 1)
-    # #     dist_ano, ind_ano = tree.query([X[int(anomaly_point)]], k=start_size + 1)
-    # #     if anomaly_point in ind[0]:
-    # #         increase_size = increase_size;
-    # #         query_point = query_point + increase_size;
-    # #     else:
-    # #         increase_size = increase_size/2;
-    # #         query_point = query_point - increase_size;
-    #
-    # while increase_size == 0:
-    #     dist, ind = tree.query([X[int(query_point)]], k=start_size)
-    #     if np.max(ind[0]) <= query_point:
-    #         increase_size = 1
-    #     else:
-    #         query_point = query_point + 1
-    # print("Finding time {}".format(time.time() - sssss))
-    #
-    #
-    #
-    # query_array = raw_dta.value[int(anomaly_point):int(query_point)]
-    # std_checked_dataset = np.std(query_array)
-    # split_data = np.array_split(query_array, int(len(query_array) / 10))
-    # sdev_array = [np.mean(cmfunc.change_after_k_seconds(i)) for i in split_data]
-    #
-    # bins = np.array([0.0 - float("inf"), 0.0 - 0.03 * std_checked_dataset, 0.0 + 0.03 * std_checked_dataset, float("inf")])
-    # inds = np.digitize(sdev_array, bins)
-    # plt.hist(inds)
-    # plt.show()
-    # max_access = 0
-    # max_bin = 0
-    # for bin_index in np.arange(1,4):
-    #     if (inds == bin_index).sum() > max_access:
-    #         max_bin = bin_index
+
     sssss = time.time();
-
-    ############################# THE CODE IS WORK IS USED TO PREDICT THE SPREADING SIZE ######################
-
-    flag_running = True;
-    # anomaly_neighboor_detect_start = np.array(
-    #     cmfunc.find_inverneghboor_of_point_2(tree, X, anomaly_point, 100),
-    #     dtype=np.int32);
-    # neighboor_list_start = anomaly_neighboor_detect_start[:,1];
-    # anomaly_neighboor_detect_end = np.array(
-    #     cmfunc.find_inverneghboor_of_point_2(tree, X, sorted(neighboor_list_start)[-1], 100),
-    #     dtype=np.int32);
-    # neighboor_list_end = anomaly_neighboor_detect_end[:, 1];
-    # union_set = set(neighboor_list_start).intersection(set(neighboor_list_end))
+    if anomaly_point in dict_neighbor:
+        anomaly_neighboor = dict_neighbor[anomaly_point]
+        # potential_anomaly.extend([x[1] for x in anomaly_neighboor])
+        for NN_pair in anomaly_neighboor:
+            Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha if \
+                result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
 
     ############################# THE CODE IS WORK WELL WIH VERSION 1.05, COMMENT TO TEST WITH VERSION 1.06 ######################
 
-    if flag_running == True:
-        if anomaly_point - 1 not in potential_anomaly and anomaly_point - 2 not in potential_anomaly:
-            if anomaly_point - 1 not in potential_anomaly:
-                anomaly_neighboor_detect = np.array(
-                    cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size),
-                    dtype=np.int32)
-            else:
-                anomaly_neighboor_detect = np.array(
-                    cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 2, limit_size),
-                    dtype=np.int32)
-            if len(set(anomaly_neighboor_detect[:, 1]).intersection(potential_anomaly)) == 0:
-                anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
-                                             dtype=np.int32)
-                potential_anomaly.extend([x[1] for x in anomaly_neighboor])
-                for NN_pair in anomaly_neighboor:
-                    Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha if \
-                        result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
-            else:
-                consider_point = np.max(
-                    [i for i in list(set(range(0, anomaly_point - 1)).difference(set(anomaly_neighboor_detect[:, 1])))
-                     if
-                     i not in potential_anomaly])
-                if (raw_dta.value.values[anomaly_point] - raw_dta.value.values[
-                    consider_point] - median_sec_der - std_sec_der > 0):
-                    anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
-                                                 dtype=np.int32)
-                    potential_anomaly.extend((x[1] for x in anomaly_neighboor))
-                    for NN_pair in anomaly_neighboor:
-                        Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[
-                            0] * alpha if \
-                            result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
-                else:
-                    result_dta.anomaly_score[anomaly_point] = 0
-        else:
-            consider_point = max(set(np.arange(anomaly_point)).difference(set(potential_anomaly)))
-            if (abs(raw_dta.value.values[anomaly_point] - raw_dta.value.values[
-                consider_point]) - median_sec_der - std_sec_der >= 0):
-                anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
-                                             dtype=np.int32)
-                potential_anomaly.extend([x[1] for x in anomaly_neighboor])
-                for NN_pair in anomaly_neighboor:
-                    Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha if \
-                        result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
-            else:
-                result_dta.anomaly_score[anomaly_point] = 0
+    # if flag_running == True:
+    #     if anomaly_point - 1 not in potential_anomaly and anomaly_point - 2 not in potential_anomaly:
+    #         if anomaly_point - 1 not in potential_anomaly:
+    #             anomaly_neighboor_detect = np.array(
+    #                 cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size),
+    #                 dtype=np.int32)
+    #         else:
+    #             anomaly_neighboor_detect = np.array(
+    #                 cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 2, limit_size),
+    #                 dtype=np.int32)
+    #         if len(set(anomaly_neighboor_detect[:, 1]).intersection(potential_anomaly)) == 0:
+    #             anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+    #                                          dtype=np.int32)
+    #             potential_anomaly.extend([x[1] for x in anomaly_neighboor])
+    #             for NN_pair in anomaly_neighboor:
+    #                 Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha if \
+    #                     result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
+    #         else:
+    #             consider_point = np.max(
+    #                 [i for i in list(set(range(0, anomaly_point - 1)).difference(set(anomaly_neighboor_detect[:, 1])))
+    #                  if
+    #                  i not in potential_anomaly])
+    #             if (raw_dta.value.values[anomaly_point] - raw_dta.value.values[
+    #                 consider_point] - median_sec_der - std_sec_der > 0):
+    #                 anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+    #                                              dtype=np.int32)
+    #                 potential_anomaly.extend((x[1] for x in anomaly_neighboor))
+    #                 for NN_pair in anomaly_neighboor:
+    #                     Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[
+    #                         0] * alpha if \
+    #                         result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
+    #             else:
+    #                 result_dta.anomaly_score[anomaly_point] = 0
+    #     else:
+    #         consider_point = max(set(np.arange(anomaly_point)).difference(set(potential_anomaly)))
+    #         if (abs(raw_dta.value.values[anomaly_point] - raw_dta.value.values[
+    #             consider_point]) - median_sec_der - std_sec_der >= 0):
+    #             anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+    #                                          dtype=np.int32)
+    #             potential_anomaly.extend([x[1] for x in anomaly_neighboor])
+    #             for NN_pair in anomaly_neighboor:
+    #                 Y[NN_pair[1]] = Y[NN_pair[1]] + result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha if \
+    #                     result_dta['anomaly_score'][anomaly_point] - NN_pair[0] * alpha > 0 else Y[NN_pair[1]]
+    #         else:
+    #             result_dta.anomaly_score[anomaly_point] = 0
     return sssss - time.time()
 
 
 def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
+    file_path_chart = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE;
     median_sec_der = np.mean(result_dta['value'])
     std_sec_der = np.std(result_dta['value'])
+    dict_neighbor = {}
 
     dta_full = result_dta
 
@@ -239,7 +198,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     executor = concurrent.futures.ThreadPoolExecutor(
         max_workers=1,
     )
-    cmfunc.plot_data_all(DATA_FILE,
+    cmfunc.plot_data_all(file_path_chart,
                          [[list(range(0, len(raw_dta.value))), raw_dta.value],
                           [list([index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1]),
                            raw_dta.value[list(
@@ -299,9 +258,14 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
                 else:
                     result_dta.anomaly_score[anomaly_point] = 0
 
-    anomaly_index = np.array([i for i, value in enumerate(result_dta['anomaly_score']) if value > 3 * std_anomaly_set])
+    anomaly_index = [i for i, value in enumerate(result_dta['anomaly_score']) if value > 3 * std_anomaly_set]
 
-    anomaly_index = [i for i in anomaly_index if find_element_in_list(i - 1, list(anomaly_index)) == None]
+    for i in anomaly_index:
+        if find_element_in_list(i - 1, list(anomaly_index)) != None:
+            anomaly_index.remove(i)
+            result_dta.anomaly_score[i] = 0
+
+    #anomaly_index = [i for i in anomaly_index if find_element_in_list(i - 1, list(anomaly_index)) == None]
 
     start_time_calculate_Y = time.time()
 
@@ -311,6 +275,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     for i in anomaly_index:
         temp_score = []
         temp_inverse_neighbors = cmfunc.find_inverneghboor_of_point_2(tree, X, i, limit_size_conf)
+        dict_neighbor[i] = temp_inverse_neighbors
         # temp_score.append(temp_inverse_neighbors > limit_size_conf)
         SAX_spreading_pattern = ''.join([SAX_data[i] for i in temp_inverse_neighbors[:, 1]])
         deveriate_SAX_spreading_pattern = ord(SAX_spreading_pattern[0]) - ord(SAX_spreading_pattern[-1])
@@ -391,31 +356,31 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     plotly.tools.set_credentials_file(username='kimhung1990', api_key='Of6D1v3klVr2tWI2piK8')
 
-    scatter = dict(
-        mode="markers",
-        name="y",
-        type="scatter3d",
-        x=np.array(final_magnitude_score_array)[:, 1], y=np.array(final_magnitude_score_array)[:, 4],
-        z=np.array(final_magnitude_score_array)[:, 5],
-        marker=dict(size=2, color="rgb(23, 190, 207)")
-    )
-    clusters = dict(
-        alphahull=7,
-        name="y",
-        opacity=0.1,
-        type="mesh3d",
-        x=np.array(final_magnitude_score_array)[:, 1], y=np.array(final_magnitude_score_array)[:, 4],
-        z=np.array(final_magnitude_score_array)[:, 5]
-    )
-    layout = dict(
-        title='3d point clustering',
-        scene=dict(
-            xaxis=dict(zeroline=False),
-            yaxis=dict(zeroline=False),
-            zaxis=dict(zeroline=False),
-        )
-    )
-    fig = dict(data=[scatter], layout=layout)
+    # scatter = dict(
+    #     mode="markers",
+    #     name="y",
+    #     type="scatter3d",
+    #     x=np.array(final_magnitude_score_array)[:, 1], y=np.array(final_magnitude_score_array)[:, 4],
+    #     z=np.array(final_magnitude_score_array)[:, 5],
+    #     marker=dict(size=2, color="rgb(23, 190, 207)")
+    # )
+    # clusters = dict(
+    #     alphahull=7,
+    #     name="y",
+    #     opacity=0.1,
+    #     type="mesh3d",
+    #     x=np.array(final_magnitude_score_array)[:, 1], y=np.array(final_magnitude_score_array)[:, 4],
+    #     z=np.array(final_magnitude_score_array)[:, 5]
+    # )
+    # layout = dict(
+    #     title='3d point clustering',
+    #     scene=dict(
+    #         xaxis=dict(zeroline=False),
+    #         yaxis=dict(zeroline=False),
+    #         zaxis=dict(zeroline=False),
+    #     )
+    # )
+    # fig = dict(data=[scatter], layout=layout)
     # Use py.iplot() for IPython notebook
     # plotly.offline.plot(fig, filename='3d point clustering')
 
@@ -455,6 +420,8 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         temp_score_array = [i[4], i[5], i[6]]
         dict_score[i[0][0]] = temp_score_array
 
+    backup_final_magnitude_score_array = list(final_magnitude_score_array)
+    round_index_value = 0
     while flag_active_learning != 0:
         list_anomaly_pattern, list_anomaly_points, list_changed_point, list_uncertainty_point = active_learning_check(
             final_magnitude_score_array, correlation_threshold, magnitude_threshold, varriance_threshold)
@@ -466,7 +433,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
             list_changed_point.append(z)
 
         dict_result_analytic = {}
-        for i in final_magnitude_score_array:
+        for i in backup_final_magnitude_score_array:
             dict_result_analytic[i[0][0]] = i
 
         ground_anomaly_list = [index for index, value in enumerate(raw_dta['anomaly_pattern'].values) if value == 1]
@@ -481,6 +448,21 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
             result_anomaly_list.extend(dict_result_analytic[j[0]][2])
         for j in list_changed_point:
             result_changepoint_list.append(j[0])
+
+        outF = open(file_path_chart + ".txt", "a")
+        outF.write("Round " + str(round_index_value))
+        outF.write("\n")
+        outF.write("Anomaly Detection Correctness: " + str(
+            len(set(ground_anomaly_list).intersection(set(result_anomaly_list))) / len(ground_anomaly_list)))
+        outF.write("\n")
+        outF.write("Change Point Detection Correctness: " + str(
+            len(set(ground_change_point_list).intersection(set(result_changepoint_list))) / len(
+                ground_change_point_list)))
+        outF.write("\n")
+        outF.write("--------------------------------------------")
+        outF.write("\n")
+        outF.close()
+        round_index_value = round_index_value + 1
 
         print("Anomaly Detection Correctness: {}".format(
             len(set(ground_anomaly_list).intersection(set(result_anomaly_list))) / len(ground_anomaly_list)))
@@ -526,7 +508,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
                     [np.sum(diff_with_anomalies), np.sum(diff_with_pattern), np.sum(diff_with_changepoint)])
             asking_point = np.argmax([dict_uncertaity[i] for i in dict_uncertaity])
 
-            cmfunc.plot_data_all(DATA_FILE,
+            cmfunc.plot_data_all(file_path_chart + "_" + str(round_index_value),
                                  [[list(range(0, len(raw_dta.value))), raw_dta.value],
                                   [result_anomaly_list,
                                    raw_dta.value[list(result_anomaly_list)]],
@@ -592,53 +574,46 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     # list_changed_point = [i[0] for i in final_magnitude_score_array if i[4]<1.5 and i[5] >= max_anomaly_size]
     # list_uncertainty_point = [i[0] for i in final_magnitude_score_array if i[0] not in list_anomaly_points and i[0] not in list_changed_point and i[0] not in list_anomaly_pattern]
 
-    print([[i[0], i[1], i[4], i[5], i[6]] for i in final_magnitude_score_array])
+    #print([[i[0], i[1], i[4], i[5], i[6]] for i in final_magnitude_score_array])
 
-    ################################################################################
-    # print(magnitude_score_array)
-    # #
-    # # neighboor_list_start = anomaly_neighboor_detect_start[:,1];
-    # # anomaly_neighboor_detect_end = np.array(
-    # #     cmfunc.find_inverneghboor_of_point_2(tree, X, sorted(neighboor_list_start)[-1], 100),
-    # #     dtype=np.int32);
-    # # neighboor_list_end = anomaly_neighboor_detect_end[:, 1];
-    # # union_set = set(neighboor_list_start).intersection(set(neighboor_list_end))
-    #
-    # ######################################################
-    # # Calculate Y
-    # # Asyncronous function to calculate Y value
-    # async def calculate_Y_value_big(executor):
-    #     loop = asyncio.get_event_loop()
-    #     blocking_tasks = [
-    #         loop.run_in_executor(executor, calculate_Y_value, alpha, anomaly_point, limit_size, median_sec_der,
-    #                              potential_anomaly, raw_dta, result_dta, std_sec_der, tree, X, Y)
-    #         for anomaly_point in sorted(anomaly_index)
-    #     ]
-    #     completed, pending = await asyncio.wait(blocking_tasks)
-    #     results = [t.result() for t in completed]
-    #     print("The sum times of calculating Y: {}".format(sum(results)))
-    #
-    # # Starting calculating function
-    # # loop = asyncio.new_event_loop()
-    # # asyncio.set_event_loop(loop)
-    # event_loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(event_loop)
-    # try:
-    #     event_loop.run_until_complete(
-    #         calculate_Y_value_big(executor_y)
-    #     )
-    # finally:
-    #     event_loop.close()
-    #     print("Finish threading calculation of Y")
-    #
-    # # Calculate final score
-    # result_dta.anomaly_score = result_dta.anomaly_score + Y
-    #
-    # print("Calculating Y Time for {} elements: {}".format(len(anomaly_index), time.time() - start_time_calculate_Y))
-    #
-    # #######################################################
-    # ########## STARTING CALCULATING Z ####################
-    #
+
+    ######################################################
+    # Calculate Y
+    # Asyncronous function to calculate Y value
+    for detected_change_point in result_changepoint_list:
+        result_dta.anomaly_score[detected_change_point] = 0
+    async def calculate_Y_value_big(executor):
+        loop = asyncio.get_event_loop()
+        blocking_tasks = [
+            loop.run_in_executor(executor, calculate_Y_value, alpha, anomaly_point, limit_size, median_sec_der,
+                                 dict_neighbor, raw_dta, result_dta, std_sec_der, tree, X, Y)
+            for anomaly_point in sorted(result_anomaly_list)
+        ]
+        completed, pending = await asyncio.wait(blocking_tasks)
+        results = [t.result() for t in completed]
+        print("The sum times of calculating Y: {}".format(sum(results)))
+
+    # Starting calculating function
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    event_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(event_loop)
+    try:
+        event_loop.run_until_complete(
+            calculate_Y_value_big(executor_y)
+        )
+    finally:
+        event_loop.close()
+        print("Finish threading calculation of Y")
+
+    # Calculate final score
+    result_dta.anomaly_score = result_dta.anomaly_score + Y
+
+    print("Calculating Y Time for {} elements: {}".format(len(anomaly_index), time.time() - start_time_calculate_Y))
+
+    #######################################################
+    ########## STARTING CALCULATING Z ####################
+
     # ssss = time.time()
     # # normal_index = [i for i, value in enumerate(result_dta['anomaly_score']) if
     # #                filter_function_z(result_dta['anomaly_score'],i,limit_size/2,data_length) > 0 and value <= np.percentile(result_dta['anomaly_score'], 20)]
@@ -672,83 +647,37 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     #
     # end_time_calculate_Z = time.time()
     # print("Calculating Z Time: {}".format(time.time() - ssss))
-    #
-    # final_score = list(map(lambda x: 0 if x < 0 else x, result_dta.anomaly_score))
-    # final_score = (final_score - np.min(final_score)) / (np.max(final_score) - np.min(final_score))
-    #
-    # # Calculating Change point.
-    # start_time_calculate_changepoint = time.time()
-    #
-    # ### Find potential anomaly point
-    # std_final_point = np.std(final_score)
-    #
-    # anomaly_set = [i for i, v in enumerate(final_score) if v > 0]
-    #
-    # # The algorithm to seperate anomaly point and change point.
-    # X = list(map(lambda x: [x, x], np.arange(len(result_dta.values))))
-    # newX = list(np.array(X)[anomaly_set])
-    # newtree = nb.KDTree(X, leaf_size=50)
-    #
-    # anomaly_group_set = []
-    # new_small_x = 0
-    # sliding_index = 1
-    # for index_value, new_small_x in enumerate(anomaly_set):
-    #     anomaly_neighboor = np.array(
-    #         cmfunc.find_inverneghboor_of_point_1(newtree, X, new_small_x, anomaly_set, limit_size),
-    #         dtype=np.int32)
-    #     tmp_array = list(map(lambda x: x[1], anomaly_neighboor))
-    #     if index_value > 0:
-    #         common_array = list(set(tmp_array).intersection(anomaly_group_set[index_value - sliding_index]))
-    #         if len(common_array) != 0:
-    #             union_array = list(set(tmp_array).union(anomaly_group_set[index_value - sliding_index]))
-    #             anomaly_group_set[index_value - sliding_index] = np.append(
-    #                 anomaly_group_set[index_value - sliding_index],
-    #                 list(set(tmp_array).difference(anomaly_group_set[index_value - sliding_index])))
-    #             sliding_index = sliding_index + 1
-    #         else:
-    #             anomaly_group_set.append(np.sort(tmp_array))
-    #     else:
-    #         anomaly_group_set.append(np.sort(tmp_array))
-    #
-    # new_array = [tuple(row) for row in anomaly_group_set]
-    # uniques = new_array
-    # std_example_data = []
-    # std_example_outer = []
-    # detect_final_result = [[], []]
-    # for detect_pattern in uniques:
-    #
-    #     list_of_anomaly = [int(j) for i in anomaly_group_set for j in i]
-    #     example_data = [i for i in (
-    #         list(raw_dta.value.values[list(z for z in range(int(min(detect_pattern) - 3), int(min(detect_pattern))) if
-    #                                        z not in list_of_anomaly)]) + list(
-    #             raw_dta.value.values[
-    #                 list(z for z in range(int(max(detect_pattern) + 1), int(max(detect_pattern) + 4)) if
-    #                      z not in list_of_anomaly and z < len(raw_dta.value.values))]))]
-    #
-    #     in_std_with_Anomaly = np.std(
-    #         example_data + list(raw_dta.value.values[int(min(detect_pattern)): int(max(detect_pattern) + 1)]))
-    #     std_example_data.append(in_std_with_Anomaly)
-    #
-    #     example_data_iner = list(raw_dta.value.values[int(min(detect_pattern)): int(max(detect_pattern)) + 1])
-    #
-    #     in_std_with_NonAnomaly = np.std(example_data)
-    #     if (in_std_with_Anomaly > 1.5 * in_std_with_NonAnomaly):
-    #         detect_final_result[1].extend(np.array(detect_pattern, dtype=np.int))
-    #     else:
-    #         detect_final_result[0].append(int(np.min(detect_pattern)))
-    #     std_example_outer.append(in_std_with_NonAnomaly)
-    # final_changepoint_set = detect_final_result[0]
-    # data_file = DATA_FILE
-    #
-    # end_time_calculate_changepoint = time.time()
-    # print("Calculating Change Point Time: {}".format(start_time_calculate_changepoint - end_time_calculate_changepoint))
-    # chartmess = cmfunc.plot_data_all(DATA_FILE,
-    #                                  [[list(range(0, len(raw_dta.value))), raw_dta.value],
-    #                                   [detect_final_result[0], raw_dta.value[detect_final_result[0]]],
-    #                                   [detect_final_result[1], raw_dta.value[detect_final_result[1]]]],
-    #                                  ['lines', 'markers', 'markers'], [None, 'circle', 'circle', 'x', 'x'],
-    #                                  ['Raw data', "Detected Change Point",
-    #                                   "Detected Anomaly Point"])
+
+    final_score = list(map(lambda x: 0 if x < 0 else x, result_dta.anomaly_score))
+    final_score = (final_score - np.min(final_score)) / (np.max(final_score) - np.min(final_score))
+
+    # Calculating Change point.
+    start_time_calculate_changepoint = time.time()
+
+    ### Find potential anomaly point
+    std_final_point = np.std(final_score)
+
+    anomaly_set = [i for i, v in enumerate(final_score) if v > 0]
+
+    # The algorithm to seperate anomaly point and change point.
+    file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
+    df = pd.read_csv(file_path)
+    df = df.assign(anomaly_score=pd.Series(final_score).values)
+    del df['anomaly_pattern']
+    del df['anomaly_point']
+    del df['change_point']
+
+    ts = time.time()
+    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in
+                  np.arange(0, len(df['value']))]
+    temp_time_stamp = pd.to_datetime(time_array, format='%Y-%m-%d %H:%M:%S').sort_values()
+    df['timestamp'] = pd.Series(temp_time_stamp).values
+    df = df.assign(label=pd.Series(np.zeros(len(df))).values)
+    df.sort_values(by='timestamp', inplace=True)
+    df.sort_index(axis=0, inplace=True)
+
+    df.to_csv(file_path, index=False);
+    df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
 
     return detect_final_result
     # return [detect_final_result,chartmess]

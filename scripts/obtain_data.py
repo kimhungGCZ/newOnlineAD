@@ -7,6 +7,7 @@ import datetime
 import warnings
 import scripts.data_generation as data_generation
 from random import randint
+import os
 
 warnings.simplefilter('ignore')
 
@@ -19,7 +20,7 @@ def getCSVData(dataPath):
     return data
 
 
-def getGCZDataFrame(deviceID):
+def getGCZDataFrame(DATA_FILE):
     # request_URL = "https://server.humm-box.com/api/devices/" + deviceID + "/fastmeasures?fields=[content_volume]"
     # request = urllib.Request(request_URL)
     # request.add_header("Authorization",
@@ -33,31 +34,36 @@ def getGCZDataFrame(deviceID):
     # plt.show()
 
     ############################### GENERATE THE DATA ################################
-    raw_data_generation = data_generation.generate_symetric_dataset_noise(pattern_number=20)
-    data = raw_data_generation[0]
-    list_change_points = raw_data_generation[1]
-    list_anonaly_points = raw_data_generation[2]
-    list_anomaly_pattern = raw_data_generation[3]
-
-    change_points_data = np.zeros(len(data))
-    change_points_data[list_change_points[0:-1]] = 1
-
-    anomaly_points_data = np.zeros(len(data))
-    anomaly_points_data[list_anonaly_points] = 1
-
-    anomaly_pattern_points_data = np.zeros(len(data))
-    for i in list_anomaly_pattern:
-        anomaly_pattern_points_data[i] = 1
-
-    ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in data]
-    d = {'timestamp': time_array, 'value': data, 'change_point': change_points_data,
-         'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
-    df = pd.DataFrame(data=d)
-    df.to_csv("./data/saw/example " + str(randint(1, 1000000)) + ".csv", index=False);
+    # file_path = "./active_result/test/" + DATA_FILE + "/" + DATA_FILE + ".csv"
+    # directory = os.path.dirname(file_path)
+    # if not os.path.exists(directory):
+    #     os.makedirs(directory)
+    # raw_data_generation = data_generation.generate_symetric_dataset(pattern_number=10)
+    # data = raw_data_generation[0]
+    # list_change_points = raw_data_generation[1]
+    # list_anonaly_points = raw_data_generation[2]
+    # list_anomaly_pattern = raw_data_generation[3]
+    #
+    # change_points_data = np.zeros(len(data))
+    # change_points_data[list_change_points[0:-1]] = 1
+    #
+    # anomaly_points_data = np.zeros(len(data))
+    # anomaly_points_data[list_anonaly_points] = 1
+    #
+    # anomaly_pattern_points_data = np.zeros(len(data))
+    # for i in list_anomaly_pattern:
+    #     anomaly_pattern_points_data[i] = 1
+    #
+    # ts = time.time()
+    # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in data]
+    # d = {'timestamp': time_array, 'value': data, 'change_point': change_points_data,
+    #      'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
+    # df = pd.DataFrame(data=d)
+    # df.to_csv(file_path, index=False);
     ############################## LOAD FROM CSV ###################################
-    #df =pd.read_csv("./data/saw/example 753795.csv")
+    df = pd.read_csv("./active_result/all/"+ DATA_FILE + "/" + DATA_FILE + ".csv")
+
     # webURL.close()
     return df
 

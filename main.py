@@ -11,6 +11,7 @@ import json
 import statsmodels.formula.api as smf
 from datetime import datetime
 
+
 import detection_engine as engine
 import scripts.obtain_data as data_engine
 
@@ -22,6 +23,8 @@ from scipy.optimize import curve_fit
 from sklearn.linear_model import Ridge
 from sympy.solvers import solve
 from sympy import Symbol
+from random import randint
+
 x = Symbol('x')
 
 
@@ -46,6 +49,9 @@ def main_function(DATA_FILE):
     #DATA_FILE = "2004DF"
     # if not os.path.exists('graph/' + DATA_FILE):
     #     os.makedirs('graph/' + DATA_FILE)
+    #DATA_FILE = "example " + str(randint(1, 1000000)) + ".csv"
+    #DATA_FILE = "example " + str(randint(1, 1000000))
+    DATA_FILE = "example 320387"
     start = time.time()
     start_getting_data = time.time()
     raw_dataframe = data_engine.getGCZDataFrame(DATA_FILE)
