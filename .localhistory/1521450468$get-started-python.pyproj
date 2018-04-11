@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{830fa8a6-4fa9-4bbd-ac0f-5d8ce57832b2}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>optimize_parameter_testing.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|ContinuumAnalytics|Anaconda36-64</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="manifest.yml" />
+    <Content Include="requirements.txt" />
+    <Content Include="scripts\common_functions.pyc" />
+    <Content Include="scripts\data_file_paths.txt" />
+    <Content Include="scripts\desktop.ini" />
+    <Content Include="scripts\nab_visualizer.html" />
+    <Content Include="scripts\obtain_data.pyc" />
+    <Content Include="scripts\README.md" />
+    <Content Include="scripts\results_file_paths.txt" />
+    <Content Include="scripts\__init__.pyc" />
+    <Content Include="scripts\__pycache__\common_functions.cpython-36.pyc" />
+    <Content Include="scripts\__pycache__\desktop.ini" />
+    <Content Include="scripts\__pycache__\__init__.cpython-36.pyc" />
+    <Content Include="static\antixss.js" />
+    <Content Include="static\styles.css" />
+    <Content Include="templates\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="asyncTest1.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="detection_engine.py" />
+    <Compile Include="hello.py" />
+    <Compile Include="main.py" />
+    <Compile Include="mle\distributions\__init__.py" />
+    <Compile Include="mle\minuit.py" />
+    <Compile Include="mle\model.py" />
+    <Compile Include="mle\tests\__init__.py" />
+    <Compile Include="mle\util.py" />
+    <Compile Include="mle\variable.py" />
+    <Compile Include="mle\__init__.py" />
+    <Compile Include="optimize_parameter_testing.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="scripts\add_labels_to_data.py" />
+    <Compile Include="scripts\combine_labels.py" />
+    <Compile Include="scripts\common_functions.py" />
+    <Compile Include="scripts\create_empty_label_file.py" />
+    <Compile Include="scripts\create_new_detector.py" />
+    <Compile Include="scripts\obtain_data.py" />
+    <Compile Include="scripts\plot.py" />
+    <Compile Include="scripts\plot_result.py" />
+    <Compile Include="scripts\remove_columns_from_data.py" />
+    <Compile Include="scripts\sort_data.py" />
+    <Compile Include="scripts\__init__.py" />
+    <Compile Include="setup.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="mle\" />
+    <Folder Include="mle\distributions\" />
+    <Folder Include="mle\tests\" />
+    <Folder Include="scripts\" />
+    <Folder Include="scripts\__pycache__\" />
+    <Folder Include="static" />
+    <Folder Include="templates" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
+    <InterpreterReference Include="Global|PythonCore|2.7" />
+    <InterpreterReference Include="Global|PythonCore|3.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="env\">
+      <Id>env</Id>
+      <Version>3.6</Version>
+      <Description>env (Python 3.6 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

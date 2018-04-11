@@ -51,7 +51,7 @@ def main_function(DATA_FILE):
     #     os.makedirs('graph/' + DATA_FILE)
     #DATA_FILE = "example " + str(randint(1, 1000000)) + ".csv"
     #DATA_FILE = "example " + str(randint(1, 1000000))
-    DATA_FILE = "example 320387"
+    DATA_FILE = "real 624622"
     start = time.time()
     start_getting_data = time.time()
     raw_dataframe = data_engine.getGCZDataFrame(DATA_FILE)

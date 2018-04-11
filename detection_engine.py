@@ -413,6 +413,10 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     magnitude_threshold = 1
     correlation_threshold = median_frequency
     varriance_threshold = 1.5
+    array_evaluation_result = {'recall_anomaly': [],
+        'precision_anomaly': [],
+        'recall_changePoint': [],
+        'precision_changePoint': []}
     dict_score = {}
     dict_labeled = {"anomaly": [], "anomaly_pattern": [], "change_point": []}
 
@@ -445,19 +449,30 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
         for j in list_anomaly_points:
             result_anomaly_list.append(j[0])
         for j in list_anomaly_pattern:
-            result_anomaly_list.extend(dict_result_analytic[j[0]][2])
+            #result_anomaly_list.extend(dict_result_analytic[j[0]][2])
+            result_anomaly_list.extend([z for z in dict_result_analytic[j[0]][2] if z not in list_uncertainty_point])
         for j in list_changed_point:
             result_changepoint_list.append(j[0])
+
+        temp_recal_value = 100*len(set(ground_anomaly_list).intersection(set(result_anomaly_list))) / len(ground_anomaly_list) if len(ground_anomaly_list) != 0 else 0
+        temp_precision_value = 100*len(set(ground_anomaly_list).intersection(set(result_anomaly_list))) / len(result_anomaly_list) if len(result_anomaly_list) != 0 else 0
+
+        temp_recal_value_changePoint = 100*len(set(ground_change_point_list).intersection(set(result_changepoint_list))) / len(ground_change_point_list) if len(ground_change_point_list) != 0 else 0
+        temp_precision_value_changePoint = 100*len(set(ground_change_point_list).intersection(set(result_changepoint_list))) / len(result_changepoint_list) if len(result_changepoint_list) != 0 else 0
+
+        array_evaluation_result['recall_anomaly'].append(temp_recal_value)
+        array_evaluation_result['precision_anomaly'].append(temp_precision_value)
+        array_evaluation_result['recall_changePoint'].append(temp_recal_value_changePoint)
+        array_evaluation_result['precision_changePoint'].append(temp_precision_value_changePoint)
+
+
 
         outF = open(file_path_chart + ".txt", "a")
         outF.write("Round " + str(round_index_value))
         outF.write("\n")
-        outF.write("Anomaly Detection Correctness: " + str(
-            len(set(ground_anomaly_list).intersection(set(result_anomaly_list))) / len(ground_anomaly_list)))
+        outF.write("Anomaly Detection Correctness: " + str(temp_precision_value))
         outF.write("\n")
-        outF.write("Change Point Detection Correctness: " + str(
-            len(set(ground_change_point_list).intersection(set(result_changepoint_list))) / len(
-                ground_change_point_list)))
+        outF.write("Change Point Detection Correctness: " + str())
         outF.write("\n")
         outF.write("--------------------------------------------")
         outF.write("\n")
@@ -576,7 +591,10 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     #print([[i[0], i[1], i[4], i[5], i[6]] for i in final_magnitude_score_array])
 
-
+    ###################################################### Write the result #########################################
+    df_percentage_result = pd.DataFrame(array_evaluation_result, columns=['recall_anomaly', 'precision_anomaly', 'recall_changePoint',
+                                                           'precision_changePoint'])
+    df_percentage_result.to_csv(file_path_chart + "_accuracy.csv")
     ######################################################
     # Calculate Y
     # Asyncronous function to calculate Y value
@@ -657,27 +675,25 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     ### Find potential anomaly point
     std_final_point = np.std(final_score)
 
-    anomaly_set = [i for i, v in enumerate(final_score) if v > 0]
-
-    # The algorithm to seperate anomaly point and change point.
-    file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
-    df = pd.read_csv(file_path)
-    df = df.assign(anomaly_score=pd.Series(final_score).values)
-    del df['anomaly_pattern']
-    del df['anomaly_point']
-    del df['change_point']
-
-    ts = time.time()
-    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in
-                  np.arange(0, len(df['value']))]
-    temp_time_stamp = pd.to_datetime(time_array, format='%Y-%m-%d %H:%M:%S').sort_values()
-    df['timestamp'] = pd.Series(temp_time_stamp).values
-    df = df.assign(label=pd.Series(np.zeros(len(df))).values)
-    df.sort_values(by='timestamp', inplace=True)
-    df.sort_index(axis=0, inplace=True)
-
-    df.to_csv(file_path, index=False);
-    df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
+    # anomaly_set = [i for i, v in enumerate(final_score) if v > 0]
+    #
+    # # The algorithm to seperate anomaly point and change point.
+    # file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
+    # df_null = pd.read_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/null/realKnownCause/null_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"))
+    #
+    # df = pd.read_csv(file_path)
+    # df = df.assign(anomaly_score=pd.Series(final_score).values)
+    # del df['anomaly_pattern']
+    # del df['anomaly_point']
+    # del df['change_point']
+    #
+    # df['timestamp'] = pd.Series(df_null['timestamp']).values
+    # df = df.assign(label=pd.Series(np.zeros(len(df))).values)
+    # df.sort_values(by='timestamp', inplace=True)
+    # df.sort_index(axis=0, inplace=True)
+    #
+    # #df.to_csv(file_path, index=False);
+    # df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
 
     return detect_final_result
     # return [detect_final_result,chartmess]

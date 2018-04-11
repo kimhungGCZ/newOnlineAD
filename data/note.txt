@@ -1,0 +1,10 @@
+example 357 is ok
+example 862 is ok
+example 992 is ok
+
+Sin ware:
+example 181 is ok
+
+Square ware:
+example 930 is ok
+example 16 is ok

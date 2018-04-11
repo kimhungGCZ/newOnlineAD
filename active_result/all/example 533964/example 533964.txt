@@ -1,0 +1,112 @@
+Round 0
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.7894736842105263
+--------------------------------------------
+Round 1
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.8421052631578947
+--------------------------------------------
+Round 2
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.8947368421052632
+--------------------------------------------
+Round 3
+Anomaly Detection Correctness: 0.375
+Change Point Detection Correctness: 1.0
+--------------------------------------------
+Round 4
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.9473684210526315
+--------------------------------------------
+Round 5
+Anomaly Detection Correctness: 0.6875
+Change Point Detection Correctness: 1.0
+--------------------------------------------
+Round 6
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 1.0
+--------------------------------------------
+Round 0
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.7894736842105263
+--------------------------------------------
+Round 1
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.8421052631578947
+--------------------------------------------
+Round 2
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.8947368421052632
+--------------------------------------------
+Round 3
+Anomaly Detection Correctness: 0.375
+Change Point Detection Correctness: 1.0
+--------------------------------------------
+Round 4
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.9473684210526315
+--------------------------------------------
+Round 5
+Anomaly Detection Correctness: 0.6875
+Change Point Detection Correctness: 1.0
+--------------------------------------------
+Round 6
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 1.0
+--------------------------------------------
+Round 0
+Anomaly Detection Correctness: 72.72727272727273
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 1
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 2
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 3
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 4
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 5
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 6
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 0
+Anomaly Detection Correctness: 72.72727272727273
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 1
+Anomaly Detection Correctness: 72.72727272727273
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 2
+Anomaly Detection Correctness: 50.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 3
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 4
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 5
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------
+Round 6
+Anomaly Detection Correctness: 100.0
+Change Point Detection Correctness: 
+--------------------------------------------

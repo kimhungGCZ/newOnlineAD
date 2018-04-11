@@ -1,0 +1,20 @@
+Round 0
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.02564102564102564
+--------------------------------------------
+Round 1
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.5641025641025641
+--------------------------------------------
+Round 2
+Anomaly Detection Correctness: 0.1111111111111111
+Change Point Detection Correctness: 0.5897435897435898
+--------------------------------------------
+Round 3
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 0.5897435897435898
+--------------------------------------------
+Round 4
+Anomaly Detection Correctness: 1.0
+Change Point Detection Correctness: 1.0
+--------------------------------------------
