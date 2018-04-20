@@ -90,7 +90,10 @@ def getGCZDataFrame(DATA_FILE):
     # df = pd.DataFrame(data=d)
     # df.to_csv(file_path, index=False);
     ############################## LOAD FROM CSV ###################################
-    df = pd.read_csv("./active_result/all/"+ DATA_FILE + "/" + DATA_FILE + ".csv")
+    #df = pd.read_csv("./active_result/all/"+ DATA_FILE + "/" + DATA_FILE + ".csv")
+
+    ############################## LOAD FROM  ###################################
+    df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")
 
     # webURL.close()
     return df

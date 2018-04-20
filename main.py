@@ -51,7 +51,7 @@ def main_function(DATA_FILE):
     #     os.makedirs('graph/' + DATA_FILE)
     #DATA_FILE = "example " + str(randint(1, 1000000)) + ".csv"
     #DATA_FILE = "example " + str(randint(1, 1000000))
-    DATA_FILE = "example 645266"
+    #DATA_FILE =
     start = time.time()
     start_getting_data = time.time()
     raw_dataframe = data_engine.getGCZDataFrame(DATA_FILE)
@@ -103,9 +103,9 @@ def main_function(DATA_FILE):
     end_main_al = time.time()
     print("Execution time: {}".format(end_main_al - start_main_al))
 
-    print("The list of change points: {}".format(detect_final_result[0]))
-    print("The list of anomaly points: {}".format(detect_final_result[1]))
-    return detect_final_result
+    # print("The list of change points: {}".format(detect_final_result[0]))
+    # print("The list of anomaly points: {}".format(detect_final_result[1]))
+    return []
 
     """
         def fitFunc_1(x, a, b):
@@ -232,7 +232,15 @@ def main_function(DATA_FILE):
     return [time_per_day_eachDtaPoint_1,time_per_day_eachDtaPoint_2,time_per_day_eachDtaPoint_3]
     """
 
-detect_final_result = main_function("1B3AEA")
+if __name__== "__main__":
+    #data_array = ["example 320387", "example 346500", "example 533964"] # SAW
+    #data_array = ["example 624622", "example 798717", "example 513024"] # SIN
+    #data_array = ["example 348800", "example 387713", "example 692083", "example 961480", "example 989638"] # SQUARE
+    data_array = ["real 1B3AEA", "real 624622"] # real
+
+    #data_array = ["example 645266"]
+    for data in data_array:
+        detect_final_result = main_function(data)
 
 
 
