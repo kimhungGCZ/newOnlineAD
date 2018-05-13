@@ -1,5 +1,0 @@
-,recall_anomaly,precision_anomaly,recall_changePoint,precision_changePoint
-0,70.0,87.5,100.0,50.0
-1,80.0,80.0,100.0,50.0
-2,90.0,75.0,100.0,50.0
-3,100.0,71.42857142857143,100.0,50.0

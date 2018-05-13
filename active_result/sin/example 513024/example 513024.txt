@@ -1,4 +1,0 @@
-Round 0
-Anomaly Detection Correctness: 0.9782608695652174
-Change Point Detection Correctness: 0.0
---------------------------------------------
