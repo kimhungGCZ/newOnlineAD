@@ -21,7 +21,7 @@ def getCSVData(dataPath):
     return data
 
 
-def getGCZDataFrame(DATA_FILE, AN_per, CP_per):
+def getGCZDataFrame(DATA_FILE):
 
     # request_URL = "https://server.humm-box.com/api/devices/1B3AEA/fastmeasures?fields=[content_volume]"
     # request = urllib.Request(request_URL)
@@ -38,60 +38,81 @@ def getGCZDataFrame(DATA_FILE, AN_per, CP_per):
     # plt.plot(data)
     # plt.show()
     ############################### GENERATE THE DATA ################################
-    file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE  + ".csv"
+    #file_path = "./active_result/test/A1Benchmark/" + DATA_FILE + ".csv"
+    #directory = os.path.dirname(file_path)
+    # if not os.path.exists(directory):
+    #     os.makedirs(directory)
+    # raw_data_generation = data_generation.generate_symetric_dataset(pattern_number=10)
+    # data = raw_data_generation[0]
+    # list_change_points = raw_data_generation[1]
+    # list_anonaly_points = raw_data_generation[2]
+    # list_anomaly_pattern = raw_data_generation[3]
+    # list_change_points = [581]
+    # list_anonaly_points = [
+    #     435,
+    #     460,
+    #     471,
+    #     1383,
+    #     1418,
+    #     1423
+    #   ]
+    # list_anomaly_pattern = [557,
+    #     558,
+    #     559,
+    #     560,
+    #     561,
+    #     562,
+    #     563,
+    #     564,
+    #     570,
+    #     571,
+    #     572,
+    #     573,
+    #     574,
+    #     1174,
+    #     1175]
+    #
+    # change_points_data = np.zeros(len(data))
+    # change_points_data[list_change_points[0]] = 1
+    #
+    # anomaly_points_data = np.zeros(len(data))
+    # anomaly_points_data[list_anonaly_points] = 1
+    #
+    # anomaly_pattern_points_data = np.zeros(len(data))
+    # for i in list_anomaly_pattern:
+    #     anomaly_pattern_points_data[i] = 1
+    #
+    # ts = time.time()
+    # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in data]
+    # d = {'timestamp': time_array, 'value': data, 'change_point': change_points_data,
+    #      'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
+    # df = pd.DataFrame(data=d)
+    # df.to_csv(file_path, index=False);
+    ############################## LOAD FROM CSV ###################################
+    file_path = "./active_result/yahoo/"+DATA_FILE+"/" + DATA_FILE + ".csv"
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    raw_data_generation = data_generation.generate_symetric_dataset_noise(AN_per, CP_per)
-    data = raw_data_generation[0]
-    list_change_points = raw_data_generation[1]
-    list_anonaly_points = raw_data_generation[2]
-    list_anomaly_pattern = raw_data_generation[3]
-    print("N0 Change point: {}".format(len(list_change_points)))
-    print("N0 Anomaly point: {}".format(len(list_anonaly_points)))
-    print("N0 Anomaly Pattern point: {}".format(len(list_anomaly_pattern)))
+    df = pd.read_csv("./active_result/test/A1Benchmark/" + DATA_FILE + ".csv")
+    anomaly_points_data = df['is_anomaly'].values
 
-    change_points_data = np.zeros(len(data))
-    change_points_data[list_change_points[0:-1]] = 1
-
-    anomaly_points_data = np.zeros(len(data))
-    anomaly_points_data[list_anonaly_points] = 1
-
-    anomaly_pattern_points_data = np.zeros(len(data))
-    for i in list_anomaly_pattern:
-        anomaly_pattern_points_data[i] = 1
-
+    value = df['value'].values
+    anomaly_pattern_points_data = np.zeros(len(value))
+    change_points_data = np.zeros(len(value))
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in data]
-    d = {'timestamp': time_array, 'value': data, 'change_point': change_points_data,
+    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i,v in enumerate(value)]
+    d = {'timestamp': time_array, 'value': value, 'change_point': change_points_data,
          'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
-    df = pd.DataFrame(data=d)
-    #df.to_csv(file_path, index=False);
-    ############################## LOAD FROM CSV ###################################
-    # file_path = "./active_result/yahoo/"+DATA_FILE+"/" + DATA_FILE + ".csv"
-    # directory = os.path.dirname(file_path)
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory)
-    # df = pd.read_csv("./active_result/test/A1Benchmark/" + DATA_FILE + ".csv")
-    # anomaly_points_data = df['is_anomaly'].values
-    #
-    # value = df['value'].values
-    # anomaly_pattern_points_data = np.zeros(len(value))
-    # change_points_data = np.zeros(len(value))
-    # ts = time.time()
-    # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-    # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i,v in enumerate(value)]
-    # d = {'timestamp': time_array, 'value': value, 'change_point': change_points_data,
-    #      'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
-    # df_new = pd.DataFrame(data=d)
-    # df_new.to_csv(file_path, index=False);
+    df_new = pd.DataFrame(data=d)
+    df_new.to_csv(file_path, index=False);
 
     ############################## LOAD FROM  ###################################
     #df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")
 
     # webURL.close()
-    return df
+    return df_new
 
 # request = urllib2.Request("https://server.humm-box.com/api/devices/2004DF/fastmeasures?fields=[content_volume]")
 # request.add_header("Authorization",

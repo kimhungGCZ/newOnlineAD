@@ -175,9 +175,8 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, dict_nei
     return sssss - time.time()
 
 
-def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_CP):
-    file_path_chart = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE;
-    file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
+def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
+    file_path_chart = "./active_result/yahoo/" + DATA_FILE + "/" + DATA_FILE;
     median_sec_der = np.mean(result_dta['value'])
     std_sec_der = np.std(result_dta['value'])
     dict_neighbor = {}
@@ -194,18 +193,16 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
     # Get 5% anomaly point
     # anomaly_index =
     # np.array(np.argsort(result_dta['anomaly_score']))[-five_percentage:]
-    anomaly_index = np.array([i for i, value in enumerate(result_dta['anomaly_score']) if value > std_anomaly_set])
-    #anomaly_index = np.array([i for i, value in enumerate(result_dta['anomaly_score']) if value > 0])
+    anomaly_index = np.array([i for i, value in enumerate(result_dta['anomaly_score']) if value > 3 * std_anomaly_set])
 
-    #limit_size = int(1 / alpha)
-
+    limit_size = int(1 / alpha)
     # Y is the anomaly spreding and Z is the normal spreading.
     Y = np.zeros(len(result_dta['anomaly_score']))
     Z = np.zeros(len(result_dta['anomaly_score']))
-    #X = list(map(lambda x: [result_dta.values[x][4]], np.arange(len(result_dta.values))))
-    X = list(map(lambda x: [10*x, result_dta.values[x][4]], np.arange(len(result_dta.values))))
+    X = list(map(lambda x: [result_dta.values[x][4]], np.arange(len(result_dta.values))))
+    #X = list(map(lambda x: [x, result_dta.values[x][1]], np.arange(len(result_dta.values))))
     SAX_data = ts_to_string(znorm(np.array(result_dta['value'])), cuts_for_asize(10))
-    limit_size_conf = np.int(len(X) * Maggitute_radion)
+
     tree = nb.KDTree(X, leaf_size=200, metric='euclidean')
 
     potential_anomaly = []
@@ -215,6 +212,22 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
     executor = concurrent.futures.ThreadPoolExecutor(
         max_workers=1,
     )
+    cmfunc.plot_data_all(file_path_chart,
+                         [[list(range(0, len(raw_dta.value))), raw_dta.value],
+                          [list([index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1]),
+                           raw_dta.value[list(
+                               [index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1])]],
+                          [list([index for index, value in enumerate(raw_dta.change_point.values) if value == 1]),
+                           raw_dta.value[list(
+                               [index for index, value in enumerate(raw_dta.change_point.values) if value == 1])]],
+                          [list([index for index, value in enumerate(raw_dta.anomaly_pattern.values) if value == 1]),
+                           raw_dta.value[list(
+                               [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if value == 1])]]],
+                         ['lines', 'markers', 'markers', 'markers'],
+                         [None, 'x', 'circle', 'x'],
+                         ['Raw data', "Detected Anomaly Point", "Detected Change Point",
+                          "Detected Anomaly Patterm"]
+                         )
 
     ################################### CHECKING THE POINT AGAIN ####################################
     # potential_anomaly = anomaly_index
@@ -224,67 +237,60 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
             if anomaly_point - 1 not in potential_anomaly and anomaly_point - 2 not in potential_anomaly:
                 if anomaly_point - 1 not in potential_anomaly:
                     anomaly_neighboor_detect = np.array(
-                        cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size_conf),
+                        cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 1, limit_size),
                         dtype=np.int32)
                 else:
                     anomaly_neighboor_detect = np.array(
-                        cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 2, limit_size_conf),
+                        cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point - 2, limit_size),
                         dtype=np.int32)
-                if len(anomaly_neighboor_detect[:, 1]) != 0:
+                if len(anomaly_neighboor_detect[0]) != 0:
                     if len(set(anomaly_neighboor_detect[:, 1]).intersection(potential_anomaly)) == 0:
                         anomaly_neighboor = np.array(
-                            cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size_conf),
+                            cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
                             dtype=np.int32)
                         if len(anomaly_neighboor[0]) != 0:
                             potential_anomaly.extend([x[1] for x in anomaly_neighboor])
 
                     else:
-                        if (len([i for i in
+                        consider_point = np.max(
+                            [i for i in
                              list(set(range(0, anomaly_point - 1)).difference(set(anomaly_neighboor_detect[:, 1])))
                              if
-                             i not in potential_anomaly]) != 0):
-                            consider_point = np.max([i for i in
-                                 list(set(range(0, anomaly_point - 1)).difference(set(anomaly_neighboor_detect[:, 1])))
-                                 if
-                                 i not in potential_anomaly]
-                                )
-                            if (raw_dta.value.values[anomaly_point] - raw_dta.value.values[
-                                consider_point] - median_sec_der - std_sec_der > 0):
-                                anomaly_neighboor = np.array(
-                                    cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size_conf),
-                                    dtype=np.int32)
-                                potential_anomaly.extend((x[1] for x in anomaly_neighboor))
-                            else:
-                                result_dta.anomaly_score[anomaly_point] = 0
+                             i not in potential_anomaly])
+                        if (raw_dta.value.values[anomaly_point] - raw_dta.value.values[
+                            consider_point] - median_sec_der - std_sec_der > 0):
+                            anomaly_neighboor = np.array(
+                                cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+                                dtype=np.int32)
+                            potential_anomaly.extend((x[1] for x in anomaly_neighboor))
+                        else:
+                            result_dta.anomaly_score[anomaly_point] = 0
 
             else:
-                if (len(set(np.arange(anomaly_point)).difference(set(potential_anomaly))) != 0):
-                    consider_point = max(set(np.arange(anomaly_point)).difference(set(potential_anomaly)))
-                    if (abs(raw_dta.value.values[anomaly_point] - raw_dta.value.values[
-                        consider_point]) - 3 * std_sec_der >= 0):
-                        anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size_conf),
-                                                     dtype=np.int32)
-                        if len(anomaly_neighboor[0]) !=0:
-                            potential_anomaly.extend([x[1] for x in anomaly_neighboor])
-                    else:
-                        result_dta.anomaly_score[anomaly_point] = 0
+                consider_point = max(set(np.arange(anomaly_point)).difference(set(potential_anomaly)))
+                if (abs(raw_dta.value.values[anomaly_point] - raw_dta.value.values[
+                    consider_point]) - 3 * std_sec_der >= 0):
+                    anomaly_neighboor = np.array(cmfunc.find_inverneghboor_of_point(tree, X, anomaly_point, limit_size),
+                                                 dtype=np.int32)
+                    if len(anomaly_neighboor[0]) !=0:
+                        potential_anomaly.extend([x[1] for x in anomaly_neighboor])
+                else:
+                    result_dta.anomaly_score[anomaly_point] = 0
 
-    #anomaly_index = [i for i, value in enumerate(result_dta['anomaly_score']) if value > 3 * std_anomaly_set]
+    anomaly_index = [i for i, value in enumerate(result_dta['anomaly_score']) if value > 3 * std_anomaly_set]
 
     # for i in anomaly_index:
     #     if find_element_in_list(i - 1, list(anomaly_index)) != None:
     #         anomaly_index.remove(i)
     #         result_dta.anomaly_score[i] = 0
 
+    #anomaly_index = [i for i in anomaly_index if find_element_in_list(i - 1, list(anomaly_index)) == None]
 
-
-    anomaly_index = np.array([i for i, value in enumerate(result_dta['anomaly_score']) if value > std_anomaly_set])
-    anomaly_index = [i for i in anomaly_index if find_element_in_list(i - 1, list(anomaly_index)) == None]
     start_time_calculate_Y = time.time()
 
     ############################## CALCULATE SCORE ############################
     magnitude_score_array = []
-    #limit_size_conf = np.int(len(X) * 0.03)
+    limit_size_conf = np.int(len(X) * 0.03)
     for i in anomaly_index:
         temp_score = []
         temp_inverse_neighbors = cmfunc.find_inverneghboor_of_point_2(tree, X, i, limit_size_conf)
@@ -403,7 +409,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
     correlation_threshold = median_frequency
     varriance_threshold = 1.5
     array_evaluation_result = {'precision': [],
-        'min_confident': [],'total_points':[]
+        'min_confident': []
     }
     array_evaluation_result_myAL = {'recall_anomaly': [],
                                'precision_anomaly': [],
@@ -433,11 +439,16 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
     X_pool = np.array(list(dict_score.values()))
     Y_pool = np.array(result_dta['change_point'][[i for i in dict_score]]*3 + result_dta['anomaly_pattern'][[i for i in dict_score]]*2 + result_dta['anomaly_point'][[i for i in dict_score]]*1)
 
-    #X_train = [[0.2, 1],[1, 0.1],[1, 0],[0,1]]
     X_train = [[0.2, 1],[1, 0.1],[1, 0]]
     #X_train = [[0.2, 1, 0.8],[1, 0.1, 0.1],[1, 0, 0.1]]
     Y_train = [3,2,1]
 
+    # with plt.style.context('seaborn-white'):
+    #     pca = PCA(n_components=2).fit_transform(X_data)
+    #     plt.figure(figsize=(7, 7))
+    #     plt.scatter(x=pca[:, 0], y=pca[:, 1], c=Y_data, cmap='viridis', s=50)
+    #     plt.title('The dataset')
+    #     plt.show()
 
     learner = ActiveLearner(
         estimator=RandomForestClassifier(),
@@ -445,12 +456,17 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
         X_training=X_train, y_training=Y_train
     )
 
+    # with plt.style.context('seaborn-white'):
+    #     plt.figure(figsize=(7, 7))
+    #     prediction = learner.predict(X_data)
+    #     plt.scatter(x=pca[:, 0], y=pca[:, 1], c=prediction, cmap='viridis', s=50)
+    #     plt.title('Initial accuracy: %f' % learner.score(X_data, Y_data))
+    #     plt.show()
 
     print('_______________________________________________')
     print('Accuracy before active learning: %f' % learner.score(X_data, Y_data))
     array_evaluation_result['precision'].append(learner.score(X_data, Y_data))
     array_evaluation_result['min_confident'].append(min([max(i) for i in learner.predict_proba(X_pool)]))
-    array_evaluation_result['total_points'].append(len(X_data))
 
     dict_result_analytic = {}
     for i in backup_final_magnitude_score_array:
@@ -472,33 +488,31 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
         )
         idx = idx + 1
         # remove queried instance from pool
-        #print("----------------Round {}----------------------------".format(idx))
+        print("----------------Round {}----------------------------".format(idx))
         X_pool = np.delete(X_pool, query_idx, axis=0)
         Y_pool = np.delete(Y_pool, query_idx)
         if len(X_pool) != 0:
-            #print('Accuracy after %d query : %f' % (idx, learner.score(X_data, Y_data)))
+            print('Accuracy after %d query : %f' % (idx, learner.score(X_data, Y_data)))
             proba_score = learner.predict_proba(X_pool);
             if min([max(i) for i in proba_score]) >= confident_threshold:
                 flag_asking = 0
-            #print('Min confident after %d query : %f' % (idx, min([max(i) for i in proba_score])))
+            print('Min confident after %d query : %f' % (idx, min([max(i) for i in proba_score])))
 
             array_evaluation_result['precision'].append(learner.score(X_data, Y_data))
             array_evaluation_result['min_confident'].append(min([max(i) for i in proba_score]))
-            array_evaluation_result['total_points'].append(len(X_data))
 
             ### Calculate the correcness
-            # display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
-            #                     ground_anomaly_list,
-            #                     ground_change_point_list, learner)
+            display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
+                                ground_anomaly_list,
+                                ground_change_point_list, learner)
         else:
             array_evaluation_result['precision'].append(learner.score(X_data, Y_data))
             array_evaluation_result['min_confident'].append(100)
-            array_evaluation_result['total_points'].append(len(X_data))
 
             ### Calculate the correcness
-            # display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
-            #                     ground_anomaly_list,
-            #                     ground_change_point_list, learner)
+            display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
+                                ground_anomaly_list,
+                                ground_change_point_list, learner)
             flag_asking = 0
 
 
@@ -511,7 +525,8 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
     #     plt.show()
 
     # ###################################################### Write the result #########################################
-
+    df_percentage_result = pd.DataFrame(array_evaluation_result, columns=['precision', 'min_confident'])
+    df_percentage_result.to_csv(file_path_chart + "_accuracy_model.csv")
 
     ### Calculate the correcness
     print('______________________Final Result_________________________')
@@ -520,73 +535,35 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
 
     ##########################################################################
 
-    # df_final_evaluation = pd.read_csv(os.path.normpath(
-    #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'))
-    #
-    # df_final_evaluation.insert(0,"precision"+DATA_FILE,pd.Series(array_evaluation_result_myAL['precision_anomaly']), allow_duplicates=True)
-    # df_final_evaluation.insert(0,"recall"+DATA_FILE,pd.Series(array_evaluation_result_myAL['recall_anomaly']), allow_duplicates=True)
-    # df_final_evaluation.insert(0,"nb_anomalies"+DATA_FILE,pd.Series(np.full((1,len(array_evaluation_result_myAL['precision_anomaly'])),len(ground_anomaly_list), dtype=int)[0]), allow_duplicates=True)
-    #
-    # df_final_evaluation.to_csv(os.path.normpath(
-    #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'), index=False);
+    df_final_evaluation = pd.read_csv(os.path.normpath(
+        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'))
+
+    df_final_evaluation.insert(0,"precision",pd.Series(array_evaluation_result_myAL['precision_anomaly']), allow_duplicates=True)
+    df_final_evaluation.insert(0,"recall",pd.Series(array_evaluation_result_myAL['recall_anomaly']), allow_duplicates=True)
+    df_final_evaluation.insert(0,"nb_anomalies",pd.Series(np.full((1,len(array_evaluation_result_myAL['precision_anomaly'])),len(ground_anomaly_list), dtype=int)[0]), allow_duplicates=True)
+
+    df_final_evaluation.to_csv(os.path.normpath(
+        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'), index=False);
 
     #############################################################################################
 
-    # df_final_result = pd.read_csv(os.path.normpath(
-    #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset.csv'))
-    # pd.DataFrame(data=d)
-    if after_activerlerning_result[0] + after_activerlerning_result[1] == 0:
-        end_result = [0,
-                      2 * after_activerlerning_result[2] * after_activerlerning_result[3] / (
-                              after_activerlerning_result[2] + after_activerlerning_result[3])]
-    elif after_activerlerning_result[2] + after_activerlerning_result[3] == 0:
-        end_result = [2 * after_activerlerning_result[0] * after_activerlerning_result[1] / (
-                    after_activerlerning_result[0] + after_activerlerning_result[1]),
-                      0]
-    else:
-        end_result = [2 * after_activerlerning_result[0] * after_activerlerning_result[1] / (
-                    after_activerlerning_result[0] + after_activerlerning_result[1]),
-                      2 * after_activerlerning_result[2] * after_activerlerning_result[3] / (
-                              after_activerlerning_result[2] + after_activerlerning_result[3])]
+    df_final_result = pd.read_csv(os.path.normpath(
+        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset.csv'))
 
-    if end_result[0] + end_result[1] > max_AN + max_CP:
-        max_AN = end_result[0]
-        max_CP = end_result[1]
-        result_dta.to_csv(file_path, index=False);
-        df_percentage_result = pd.DataFrame(array_evaluation_result,
-                                            columns=['precision', 'min_confident', 'total_points'])
-        df_percentage_result.to_csv(file_path_chart + "_accuracy_model.csv")
-        df_final_result = pd.DataFrame(data={'dataset': DATA_FILE,
-                                             'bf_pre_anomaly': before_activelearning_result[0],
-                                             'bf_re_anomaly': before_activelearning_result[1],
-                                             'bf_pre_change': before_activelearning_result[2],
-                                             'bf_re_change': before_activelearning_result[3],
-                                             'af_pre_anomaly': after_activerlerning_result[0],
-                                             'af_re_anomaly': after_activerlerning_result[1],
-                                             'af_pre_change': after_activerlerning_result[2],
-                                             'af_re_change': after_activerlerning_result[3],
-                                             'nb_anomalies': len(ground_anomaly_list),
-                                             'nb_change_point': len(ground_change_point_list)}, index=[0])
-        df_final_result.to_csv(file_path_chart + "_result.csv");
-
-        cmfunc.plot_data_all(file_path_chart,
-                             [[list(range(0, len(raw_dta.value))), raw_dta.value],
-                              [list([index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1]),
-                               raw_dta.value[list(
-                                   [index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1])]],
-                              [list([index for index, value in enumerate(raw_dta.change_point.values) if value == 1]),
-                               raw_dta.value[list(
-                                   [index for index, value in enumerate(raw_dta.change_point.values) if value == 1])]],
-                              [list(
-                                  [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if value == 1]),
-                               raw_dta.value[list(
-                                   [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if
-                                    value == 1])]]],
-                             ['lines', 'markers', 'markers', 'markers'],
-                             [None, 'x', 'circle', 'x'],
-                             ['Raw data', "Detected Anomaly Point", "Detected Change Point",
-                              "Detected Anomaly Patterm"]
-                             )
+    df_final_result = df_final_result.append({'dataset': DATA_FILE,
+                                              'bf_pre_anomaly': before_activelearning_result[0],
+                                              'bf_re_anomaly': before_activelearning_result[1],
+                                              'bf_pre_change': before_activelearning_result[2],
+                                              'bf_re_change': before_activelearning_result[3],
+                                              'af_pre_anomaly': after_activerlerning_result[0],
+                                              'af_re_anomaly': after_activerlerning_result[1],
+                                              'af_pre_change': after_activerlerning_result[2],
+                                              'af_re_change': after_activerlerning_result[3],
+                                              'nb_anomalies': len(ground_anomaly_list),
+                                              'nb_change_point': len(ground_change_point_list),
+                                              'query': idx}, ignore_index=True)
+    df_final_result.to_csv(os.path.normpath(
+        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset.csv'), index=False);
 
 
     # ######################################################
@@ -689,7 +666,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
     # # #df.to_csv(file_path, index=False);
     # # df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
 
-    return [end_result,max_AN,max_CP]
+    return []
     # return [detect_final_result,chartmess]
 
 
@@ -700,19 +677,17 @@ def display_performance(X_data, array_evaluation_result_myAL, dict_result_analyt
     examing_point = list(dict_score.keys())
     model_predict_result = learner.predict(X_data)
     for tempt_i, tempt_value in enumerate(model_predict_result):
+        if tempt_value == 1:
+            result_anomaly_list.append(examing_point[tempt_i])
+            if len(dict_result_analytic[examing_point[tempt_i]][2]) > 1:
+                result_anomaly_list.extend(
+            [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
+        if tempt_value == 2:
+            # result_anomaly_list.append(examing_point[tempt_i])
+            result_anomaly_list.extend(
+                [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
         if tempt_value == 3:
             result_changepoint_list.append(examing_point[tempt_i])
-    for tempt_i, tempt_value in enumerate(model_predict_result):
-        if examing_point[tempt_i] not in result_changepoint_list:
-            if tempt_value == 1:
-                result_anomaly_list.append(examing_point[tempt_i])
-                if len(dict_result_analytic[examing_point[tempt_i]][2]) > 1:
-                    result_anomaly_list.extend(
-                        [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
-            if tempt_value == 2:
-                # result_anomaly_list.append(examing_point[tempt_i])
-                result_anomaly_list.extend(
-                    [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
     # Calculate the correctness.
     temp_recal_value = 100 * len(set(ground_anomaly_list).intersection(set(result_anomaly_list))) / len(
         set(ground_anomaly_list)) if len(set(ground_anomaly_list)) != 0 else 0
