@@ -11,8 +11,8 @@ def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
     list_anonaly_points = []
     list_anomaly_pattern = []
     global_size = 2000
-    # AN_per = 0.05
-    # CP_per = 0.02
+    AN_per = 0.05
+    CP_per = 0.02
     AN_bugget = int(global_size*AN_per)
     pattern_number = int(global_size*CP_per)
     while initial_index < pattern_number:

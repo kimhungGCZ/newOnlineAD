@@ -163,7 +163,7 @@ def find_inverneghboor_of_point(tree,X, index_ano, limit_size):
     anomaly_point = X[index_ano]
     flag_stop = 0
     flag_round = 2
-    while flag_stop <= int(limit_size/2):
+    while flag_stop <= 3:
         len_start = len(inverse_neighboor)
         dist, ind = tree.query([anomaly_point], k=flag_round)
         for index_dist, i in enumerate(ind[0]):
@@ -227,7 +227,7 @@ def find_inverneghboor_of_point_2(tree,X, index_ano, limit_size):
         if len(inverse_neighboor) > limit_size:
             break
     end_time = time.time();
-    print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
+    #print("Find invert neighbor {}th Time: {}".format(index_ano, end_time-start_time));
     return inverse_neighboor
 
 def calcRMS(truthSeries, resultSeries, repairlist):
