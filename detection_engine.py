@@ -175,8 +175,8 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, dict_nei
     return sssss - time.time()
 
 
-def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
-    file_path_chart = "./active_result/yahoo/" + DATA_FILE + "/" + DATA_FILE;
+def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, K_value = 10):
+    file_path_chart = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE;
     median_sec_der = np.mean(result_dta['value'])
     std_sec_der = np.std(result_dta['value'])
     dict_neighbor = {}
@@ -293,7 +293,11 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
     limit_size_conf = np.int(len(X) * 0.03)
     for i in anomaly_index:
         temp_score = []
-        temp_inverse_neighbors = cmfunc.find_inverneghboor_of_point_2(tree, X, i, limit_size_conf)
+        # Using INN
+        #temp_inverse_neighbors = cmfunc.find_inverneghboor_of_point_2(tree, X, i, limit_size_conf)
+        # Using KNN
+        temp_inverse_neighbors = list(tree.query([X[i]], k=K_value)[1][0])
+        temp_inverse_neighbors = np.array([[temp_inverse_neighbors.index(x),x] for x in temp_inverse_neighbors])
         if len(temp_inverse_neighbors[0]) != 0:
             dict_neighbor[i] = temp_inverse_neighbors
             # temp_score.append(temp_inverse_neighbors > limit_size_conf)
@@ -535,137 +539,52 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE):
 
     ##########################################################################
 
-    df_final_evaluation = pd.read_csv(os.path.normpath(
-        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'))
-
-    df_final_evaluation.insert(0,"precision",pd.Series(array_evaluation_result_myAL['precision_anomaly']), allow_duplicates=True)
-    df_final_evaluation.insert(0,"recall",pd.Series(array_evaluation_result_myAL['recall_anomaly']), allow_duplicates=True)
-    df_final_evaluation.insert(0,"nb_anomalies",pd.Series(np.full((1,len(array_evaluation_result_myAL['precision_anomaly'])),len(ground_anomaly_list), dtype=int)[0]), allow_duplicates=True)
-
-    df_final_evaluation.to_csv(os.path.normpath(
-        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'), index=False);
+    # df_final_evaluation = pd.read_csv(os.path.normpath(
+    #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'))
+    #
+    # df_final_evaluation.insert(0,"precision",pd.Series(array_evaluation_result_myAL['precision_anomaly']), allow_duplicates=True)
+    # df_final_evaluation.insert(0,"recall",pd.Series(array_evaluation_result_myAL['recall_anomaly']), allow_duplicates=True)
+    # df_final_evaluation.insert(0,"nb_anomalies",pd.Series(np.full((1,len(array_evaluation_result_myAL['precision_anomaly'])),len(ground_anomaly_list), dtype=int)[0]), allow_duplicates=True)
+    #
+    # df_final_evaluation.to_csv(os.path.normpath(
+    #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset_steps.csv'), index=False);
 
     #############################################################################################
 
-    df_final_result = pd.read_csv(os.path.normpath(
-        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset.csv'))
+    try:
+        df_final_result = pd.read_csv(os.path.normpath(
+            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_ev_syn/' + DATA_FILE + '.csv'))
 
-    df_final_result = df_final_result.append({'dataset': DATA_FILE,
-                                              'bf_pre_anomaly': before_activelearning_result[0],
-                                              'bf_re_anomaly': before_activelearning_result[1],
-                                              'bf_pre_change': before_activelearning_result[2],
-                                              'bf_re_change': before_activelearning_result[3],
-                                              'af_pre_anomaly': after_activerlerning_result[0],
-                                              'af_re_anomaly': after_activerlerning_result[1],
-                                              'af_pre_change': after_activerlerning_result[2],
-                                              'af_re_change': after_activerlerning_result[3],
-                                              'nb_anomalies': len(ground_anomaly_list),
-                                              'nb_change_point': len(ground_change_point_list),
-                                              'query': idx}, ignore_index=True)
-    df_final_result.to_csv(os.path.normpath(
-        'D:/Google Drive/13. These cifre/Data Cleaning/workspace/result_yahoo_dataset.csv'), index=False);
+        df_final_result = df_final_result.append({'dataset': DATA_FILE,
+                                                  'bf_pre_anomaly': before_activelearning_result[0],
+                                                  'bf_re_anomaly': before_activelearning_result[1],
+                                                  'bf_pre_change': before_activelearning_result[2],
+                                                  'bf_re_change': before_activelearning_result[3],
+                                                  'af_pre_anomaly': after_activerlerning_result[0],
+                                                  'af_re_anomaly': after_activerlerning_result[1],
+                                                  'af_pre_change': after_activerlerning_result[2],
+                                                  'af_re_change': after_activerlerning_result[3],
+                                                  'nb_anomalies': len(ground_anomaly_list),
+                                                  'nb_change_point': len(ground_change_point_list),
+                                                  'query': idx}, ignore_index=True)
+        df_final_result.to_csv(os.path.normpath(
+            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_ev_syn/' + DATA_FILE + '.csv'), index=False);
+    except FileNotFoundError:
 
-
-    # ######################################################
-    # # Calculate Y
-    # # Asyncronous function to calculate Y value
-    # for detected_change_point in result_changepoint_list:
-    #     result_dta.anomaly_score[detected_change_point] = 0
-    # async def calculate_Y_value_big(executor):
-    #     loop = asyncio.get_event_loop()
-    #     blocking_tasks = [
-    #         loop.run_in_executor(executor, calculate_Y_value, alpha, anomaly_point, limit_size, median_sec_der,
-    #                              dict_neighbor, raw_dta, result_dta, std_sec_der, tree, X, Y)
-    #         for anomaly_point in sorted(result_anomaly_list)
-    #     ]
-    #     completed, pending = await asyncio.wait(blocking_tasks)
-    #     results = [t.result() for t in completed]
-    #     print("The sum times of calculating Y: {}".format(sum(results)))
-    #
-    # # Starting calculating function
-    # # loop = asyncio.new_event_loop()
-    # # asyncio.set_event_loop(loop)
-    # event_loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(event_loop)
-    # try:
-    #     event_loop.run_until_complete(
-    #         calculate_Y_value_big(executor_y)
-    #     )
-    # finally:
-    #     event_loop.close()
-    #     print("Finish threading calculation of Y")
-    #
-    # # Calculate final score
-    # result_dta.anomaly_score = result_dta.anomaly_score + Y
-    #
-    # print("Calculating Y Time for {} elements: {}".format(len(anomaly_index), time.time() - start_time_calculate_Y))
-    #
-    # #######################################################
-    # ########## STARTING CALCULATING Z ####################
-    #
-    # # ssss = time.time()
-    # # # normal_index = [i for i, value in enumerate(result_dta['anomaly_score']) if
-    # # #                filter_function_z(result_dta['anomaly_score'],i,limit_size/2,data_length) > 0 and value <= np.percentile(result_dta['anomaly_score'], 20)]
-    # # anomaly_score = result_dta['anomaly_score']
-    # # normal_index = [i for i, value in enumerate(anomaly_score) if
-    # #                 value <= 0 and anomaly_score[tree.query([X[i]], k=int(limit_size / 2))[1][0]].values.max() > 0]
-    # # print("Chossing time for {}: {}".format(len(normal_index), time.time() - ssss))
-    # # normal_points_array = chunks(sorted(normal_index), 30)
-    # #
-    # # async def calculate_z_value(executor):
-    # #     loop = asyncio.get_event_loop()
-    # #     blocking_tasks = [
-    # #         loop.run_in_executor(executor, find_inverneghboor_of_point_blocking, alpha, normal_points,
-    # #                              result_dta, Z)
-    # #         for normal_points in normal_points_array
-    # #     ]
-    # #     completed, pending = await asyncio.wait(blocking_tasks)
-    # #     results = [t.result() for t in completed]
-    # #     print("The sum times of calculating Z: {}".format(sum(results)))
-    # #
-    # # event_loop = asyncio.new_event_loop()
-    # # asyncio.set_event_loop(event_loop)
-    # # try:
-    # #     event_loop.run_until_complete(
-    # #         calculate_z_value(executor)
-    # #     )
-    # # finally:
-    # #     event_loop.close()
-    # #
-    # # result_dta.anomaly_score = result_dta.anomaly_score - Z
-    # #
-    # # end_time_calculate_Z = time.time()
-    # # print("Calculating Z Time: {}".format(time.time() - ssss))
-    #
-    # final_score = list(map(lambda x: 0 if x < 0 else x, result_dta.anomaly_score))
-    # final_score = (final_score - np.min(final_score)) / (np.max(final_score) - np.min(final_score))
-    #
-    # # Calculating Change point.
-    # start_time_calculate_changepoint = time.time()
-    #
-    # ### Find potential anomaly point
-    # std_final_point = np.std(final_score)
-    #
-    # # anomaly_set = [i for i, v in enumerate(final_score) if v > 0]
-    # #
-    # # # The algorithm to seperate anomaly point and change point.
-    # # file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
-    # # df_null = pd.read_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/null/realKnownCause/null_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"))
-    # #
-    # # df = pd.read_csv(file_path)
-    # # df = df.assign(anomaly_score=pd.Series(final_score).values)
-    # # del df['anomaly_pattern']
-    # # del df['anomaly_point']
-    # # del df['change_point']
-    # #
-    # # df['timestamp'] = pd.Series(df_null['timestamp']).values
-    # # df = df.assign(label=pd.Series(np.zeros(len(df))).values)
-    # # df.sort_values(by='timestamp', inplace=True)
-    # # df.sort_index(axis=0, inplace=True)
-    # #
-    # # #df.to_csv(file_path, index=False);
-    # # df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
-
+        df_final_result = pd.DataFrame([[DATA_FILE,
+                                             before_activelearning_result[0],
+                                             before_activelearning_result[1],
+                                             before_activelearning_result[2],
+                                             before_activelearning_result[3],
+                                             after_activerlerning_result[0],
+                                             after_activerlerning_result[1],
+                                             after_activerlerning_result[2],
+                                             after_activerlerning_result[3],
+                                             len(ground_anomaly_list),
+                                             len(ground_change_point_list),
+                                             idx]], columns=['dataset', 'bf_pre_anomaly','bf_re_anomaly','bf_pre_change','bf_re_change' , 'af_pre_anomaly', 'af_re_anomaly','af_pre_change','af_re_change' , 'nb_anomalies', 'nb_change_point','query'])
+        df_final_result.to_csv(os.path.normpath(
+            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_ev_syn/' + DATA_FILE + '.csv'), index=False);
     return []
     # return [detect_final_result,chartmess]
 
