@@ -105,7 +105,7 @@ def main_function(DATA_FILE, K_value):
 
     # print("The list of change points: {}".format(detect_final_result[0]))
     # print("The list of anomaly points: {}".format(detect_final_result[1]))
-    return []
+    return detect_final_result
 
 if __name__== "__main__":
     base_name = "real_"
@@ -115,11 +115,11 @@ if __name__== "__main__":
     #data_array = ["example 348800", "example 387713", "example 692083", "example 961480", "example 989638"] # SQUARE
     #data_array = ["real_8"] # real
     # for i in range(1,50):
-    #     if i not in [1,7,10,20]:
+    #     if i not in [7,10,20]:
     #         data_array.append(base_name + str(i))
     AL_coup = [[0.01, 85], [0.05, 80], [0.1, 75], [0.15, 70], [0.2, 65]]
-    CP_coup = [0.02, 0.05, 0.1, 0.15]
-    #CP_coup = [0.2]
+    CP_coup = [0.01, 0.02, 0.05, 0.1, 0.2]
+    # CP_coup = [0.2]
     # CP_coup = [0.01, 0.02, 0.05, 0.1, 0.15]
     # AL_coup = [[0.1,75],[0.15,70],[0.2,65]]
     # AL_coup = [[0.01,60]]
@@ -129,12 +129,45 @@ if __name__== "__main__":
             data_array.append(data_name)
 
 
-    #data_array = ["real_1"]
     K_value_array = np.arange(5,100,5)
     for data in data_array:
+        detect_result_in_K = []
         for K_value in K_value_array:
             print("############################# START AT DATASET: {}, K = {} ##########################################".format(data, K_value))
             detect_final_result = main_function(data, K_value)
+            detect_result_in_K.append(detect_final_result)
+        detect_result_in_K = np.array(detect_result_in_K)
+        detect_result_in_K = detect_result_in_K[detect_result_in_K[:,2].argsort()][-1]
+        try:
+            df_final_result = pd.read_csv(os.path.normpath(
+                'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new_syn/' + 'final_value' + '.csv'))
+
+            df_final_result = df_final_result.append({'dataset': detect_result_in_K[0],
+                                                      'bf_f_score_anomaly': detect_result_in_K[1],
+                                                      'af_f_score_anomaly': detect_result_in_K[2],
+                                                      'bf_f_score_changepoint': detect_result_in_K[3],
+                                                      'af_f_score_changepoint': detect_result_in_K[4],
+                                                      'nb_anomaly_point': detect_result_in_K[5],
+                                                      'nb_change_point': detect_result_in_K[6],
+                                                      'query': detect_result_in_K[7]}, ignore_index=True)
+            df_final_result.to_csv(os.path.normpath(
+                'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new_syn/' + 'final_value' + '.csv'), index=False);
+        except FileNotFoundError:
+
+            df_final_result = pd.DataFrame([[detect_result_in_K[0],
+                                             detect_result_in_K[1],
+                                             detect_result_in_K[2],
+                                             detect_result_in_K[3],
+                                             detect_result_in_K[4],
+                                             detect_result_in_K[5],
+                                             detect_result_in_K[6],
+                                             detect_result_in_K[7],
+                                             ]],
+                                           columns=['dataset', 'bf_f_score_anomaly', 'af_f_score_anomaly','bf_f_score_changepoint','af_f_score_changepoint','nb_anomaly_point', 'nb_change_point',
+                                                    'query'])
+            df_final_result.to_csv(os.path.normpath(
+                'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new_syn/' + 'final_value' + '.csv'), index=False);
+
 
 
 

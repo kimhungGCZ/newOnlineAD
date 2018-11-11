@@ -89,7 +89,7 @@ def getGCZDataFrame(DATA_FILE):
     #      'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
     # df = pd.DataFrame(data=d)
     # df.to_csv(file_path, index=False);
-    ############################## LOAD FROM CSV ###################################
+    ############################## LOAD FROM Yahoo CSV ###################################
     # file_path = "./active_result/yahoo/"+DATA_FILE+"/" + DATA_FILE + ".csv"
     # directory = os.path.dirname(file_path)
     # if not os.path.exists(directory):

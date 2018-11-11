@@ -4,7 +4,7 @@ import numpy as np
 from scipy import signal as sg
 
 def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
-
+    rng = np.random.RandomState(42)
     initial_index = 0;
     signal = []
     list_change_points = []
@@ -16,13 +16,13 @@ def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
     AN_bugget = int(global_size*AN_per)
     pattern_number = int(global_size*CP_per)
     while initial_index < pattern_number:
-        pattern_top = randint(800, 1000)
-        pattern_bot = randint(200, 300)
+        pattern_top = rng.randint(800, 1000)
+        pattern_bot = rng.randint(200, 300)
         pattern_size = int(global_size/pattern_number)
         signal_index = len(signal)
 
         pure = np.linspace(pattern_top, pattern_bot, pattern_size)
-        noise = np.random.normal(-5, 5, pure.shape)
+        noise = rng.normal(-5, 5, pure.shape)
         temp_signal = pure + noise
         # if (AN_bugget > 0):
         #     anomaly_flag = np.random.choice([0, 1], 1, replace=False, p=[0.7, 0.3])
@@ -55,18 +55,18 @@ def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
 
         list_change_points.append(signal_index + pattern_size)
         initial_index = initial_index + 1
-    anomaly_poss = np.random.choice(np.arange(0,global_size), int(AN_bugget*0.7))
+    anomaly_poss = rng.choice(np.arange(0,global_size), int(AN_bugget*0.7))
     for temp_anomaly_pos in anomaly_poss:
-        global_anomaly_flag = randint(1, 2)
-        signal[temp_anomaly_pos] =  signal[temp_anomaly_pos] + randint(
+        global_anomaly_flag = rng.randint(1, 2)
+        signal[temp_anomaly_pos] =  signal[temp_anomaly_pos] + rng.randint(
                         np.int(global_anomaly_flag * pattern_top - signal[temp_anomaly_pos] - 100),
                         np.int(global_anomaly_flag * pattern_top - signal[temp_anomaly_pos]))
         list_anonaly_points.append(temp_anomaly_pos)
 
-    anomaly_poss = np.random.choice(np.arange(0,global_size), int(AN_bugget*0.3/5))
+    anomaly_poss = rng.choice(np.arange(0,global_size), int(AN_bugget*0.3/5))
     for temp_anomaly_pos in anomaly_poss:
-        global_anomaly_flag = randint(1, 2)
-        anomaly_pattern_size = randint(5, 5)
+        global_anomaly_flag = rng.randint(1, 2)
+        anomaly_pattern_size = rng.randint(4, 5)
         signal[temp_anomaly_pos:temp_anomaly_pos + anomaly_pattern_size] =  signal[temp_anomaly_pos] + np.linspace(
                     np.int(pattern_top - signal[temp_anomaly_pos] + 50),
                     np.int(pattern_top - signal[temp_anomaly_pos] + 50 - 20), anomaly_pattern_size)
