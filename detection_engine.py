@@ -176,7 +176,7 @@ def calculate_Y_value(alpha, anomaly_point, limit_size, median_sec_der, dict_nei
 
 
 def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, K_value = 10):
-    file_path_chart = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE;
+    file_path_chart = "./active_result/yahoo/" + DATA_FILE + "/" + DATA_FILE;
     median_sec_der = np.mean(result_dta['value'])
     std_sec_der = np.std(result_dta['value'])
     dict_neighbor = {}
@@ -553,7 +553,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, K_value = 10
 
     try:
         df_final_result = pd.read_csv(os.path.normpath(
-            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new_syn/' + DATA_FILE + '.csv'))
+            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new/' + DATA_FILE + '.csv'))
 
         df_final_result = df_final_result.append({'dataset': DATA_FILE,
                                                   'bf_pre_anomaly': before_activelearning_result[0],
@@ -578,7 +578,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, K_value = 10
                                                   'nb_change_point': len(ground_change_point_list),
                                                   'query': idx}, ignore_index=True)
         df_final_result.to_csv(os.path.normpath(
-            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new_syn/' + DATA_FILE + '.csv'), index=False);
+            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new/' + DATA_FILE + '.csv'), index=False);
     except FileNotFoundError:
 
         df_final_result = pd.DataFrame([[DATA_FILE,
@@ -606,7 +606,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, K_value = 10
                                              len(ground_change_point_list),
                                              idx]], columns=['dataset', 'bf_pre_anomaly','bf_re_anomaly','bf_f_anomaly', 'bf_pre_changepoint','bf_re_changepoint','bf_f_changepoint', 'af_pre_anomaly','af_re_anomaly', 'af_f_anomaly','af_pre_changepoint','af_re_changepoint', 'af_f_changepoint', 'nb_anomalies', 'nb_change_point','query'])
         df_final_result.to_csv(os.path.normpath(
-            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new_syn/' + DATA_FILE + '.csv'), index=False);
+            'D:/Google Drive/13. These cifre/Data Cleaning/workspace/knn_new/' + DATA_FILE + '.csv'), index=False);
     return [DATA_FILE,
             calculate_f_score(before_activelearning_result[0],before_activelearning_result[1]),
             calculate_f_score(after_activerlerning_result[0],after_activerlerning_result[1]),
@@ -703,6 +703,6 @@ def checking_pattern_exist(score_pattern, detect_pattern, final_magnitude_score_
     return [flag_checking_pattern, possition_index]
 def calculate_f_score(a,b):
     try:
-        return 2 * a * b / (a + b)
+        return float(2 * a * b / (a + b))
     except:
         return 0

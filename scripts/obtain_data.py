@@ -90,42 +90,42 @@ def getGCZDataFrame(DATA_FILE):
     # df = pd.DataFrame(data=d)
     # df.to_csv(file_path, index=False);
     ############################## LOAD FROM Yahoo CSV ###################################
-    # file_path = "./active_result/yahoo/"+DATA_FILE+"/" + DATA_FILE + ".csv"
-    # directory = os.path.dirname(file_path)
-    # if not os.path.exists(directory):
-    #     os.makedirs(directory)
-    # df = pd.read_csv("./active_result/test/A1Benchmark/" + DATA_FILE + ".csv")
-    # anomaly_points_data = df['is_anomaly'].values
-    #
-    # value = df['value'].values
-    # anomaly_pattern_points_data = np.zeros(len(value))
-    # change_points_data = np.zeros(len(value))
-    # ts = time.time()
-    # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-    # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i,v in enumerate(value)]
-    # d = {'timestamp': time_array, 'value': value, 'change_point': change_points_data,
-    #      'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
-    # df_new = pd.DataFrame(data=d)
-    # df_new.to_csv(file_path, index=False);
-    ############################## LOAD FROM Synthetic data ###################################
-    file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
+    file_path = "./active_result/yahoo/"+DATA_FILE+"/" + DATA_FILE + ".csv"
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")
-    anomaly_points_data = df['anomaly_point'].values
+    df = pd.read_csv("./active_result/test/A1Benchmark/" + DATA_FILE + ".csv")
+    anomaly_points_data = df['is_anomaly'].values
 
     value = df['value'].values
-    anomaly_pattern_points_data = df['anomaly_pattern'].values
-    change_points_data = df['change_point'].values
+    anomaly_pattern_points_data = np.zeros(len(value))
+    change_points_data = np.zeros(len(value))
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i, v in
-                  enumerate(value)]
+    time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i,v in enumerate(value)]
     d = {'timestamp': time_array, 'value': value, 'change_point': change_points_data,
          'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
     df_new = pd.DataFrame(data=d)
     df_new.to_csv(file_path, index=False);
+    ############################## LOAD FROM Synthetic data ###################################
+    # file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
+    # directory = os.path.dirname(file_path)
+    # if not os.path.exists(directory):
+    #     os.makedirs(directory)
+    # df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")
+    # anomaly_points_data = df['anomaly_point'].values
+    #
+    # value = df['value'].values
+    # anomaly_pattern_points_data = df['anomaly_pattern'].values
+    # change_points_data = df['change_point'].values
+    # ts = time.time()
+    # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i, v in
+    #               enumerate(value)]
+    # d = {'timestamp': time_array, 'value': value, 'change_point': change_points_data,
+    #      'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
+    # df_new = pd.DataFrame(data=d)
+    # df_new.to_csv(file_path, index=False);
 
     ############################## LOAD FROM  ###################################
     #df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")

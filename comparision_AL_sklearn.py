@@ -18,6 +18,8 @@ print(__doc__)
 
 matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 
+
+
 # Example settings
 n_samples = 300
 outliers_fraction = 0.15
