@@ -11,8 +11,6 @@ def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
     list_anonaly_points = []
     list_anomaly_pattern = []
     global_size = 2000
-    AN_per = 0.05
-    CP_per = 0.02
     AN_bugget = int(global_size*AN_per)
     pattern_number = int(global_size*CP_per)
     while initial_index < pattern_number:
@@ -55,6 +53,7 @@ def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
 
         list_change_points.append(signal_index + pattern_size)
         initial_index = initial_index + 1
+    truth_data = list(signal)
     anomaly_poss = np.random.choice(np.arange(0,global_size), int(AN_bugget*0.7))
     for temp_anomaly_pos in anomaly_poss:
         global_anomaly_flag = randint(1, 2)
@@ -73,7 +72,7 @@ def generate_symetric_dataset_noise(AN_per = 0.05,CP_per = 0.02):
 
         list_anomaly_pattern.extend(np.arange(temp_anomaly_pos, temp_anomaly_pos + anomaly_pattern_size))
 
-    return [signal,list_change_points, list_anonaly_points, list_anomaly_pattern]
+    return [signal,list_change_points, list_anonaly_points, list_anomaly_pattern, truth_data]
 
 def generate_symetric_dataset(pattern_number = 5):
 
