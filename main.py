@@ -106,6 +106,7 @@ def main_function(DATA_FILE, AN_per, CP_per, confident_threshold):
     detect_final_result = engine.online_anomaly_detection(new_data, raw_dataframe, alpha, DATA_FILE, confident_threshold)
 
     end_main_al = time.time()
+    engine.generate_tsing_data_format(DATA_FILE, raw_dataframe, detect_final_result[2])
     print("Execution time: {}".format(end_main_al - start_main_al))
 
     # print("The list of change points: {}".format(detect_final_result[0]))
@@ -258,13 +259,13 @@ if __name__ == "__main__":
                                         'fscorechangepoint': [],
                                         'query': []}
         #AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
-        AL_coup = [[0.01]]
+        AL_coup = [[0.05]]
         # CP_coup = [0.02, 0.05, 0.1, 0.15]
         #CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
         CP_coup = [0.01]
         # AL_coup = [[0.1,75],[0.15,70],[0.2,65]]
         # AL_coup = [[0.01,60]]
-        confident_threshold = 1
+        confident_threshold = 0.8
         for CP_value in CP_coup:
             for run_value in AL_coup:
                 max_AN = 0

@@ -688,8 +688,91 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, confident_th
     # # #df.to_csv(file_path, index=False);
     # # df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
 
-    return [end_result,idx]
+    return [end_result,idx, after_activerlerning_result[4]]
     # return [detect_final_result,chartmess]
+
+
+def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
+
+
+    file_path = "D:/Workspace/imr/data/"
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    data = df_raw['value'].values
+    list_change_points = [i for i, x in enumerate(df_raw['change_point'].values) if x == 1]
+    list_anonaly_points = [i for i, x in enumerate(df_raw['anomaly_point'].values) if x == 1]
+    list_anomaly_pattern = [i for i, x in enumerate(df_raw['anomaly_pattern'].values) if x == 1]
+    list_truth = df_raw['value'].values.copy()
+    for i in list_anonaly_points:
+        list_truth[i] = list_truth[i-1]
+    for i in list_anomaly_pattern:
+        list_truth[i] = list_truth[i-1]
+
+    change_points_data = np.zeros(len(data))
+    change_points_data[list_change_points[0:-1]] = 1
+
+    anomaly_points_data = np.zeros(len(data))
+    anomaly_points_data[list_anonaly_points] = 1
+    anomaly_points_data[list_anomaly_pattern] = 1
+
+#######################################################################################################################
+    label_data = data.copy();
+    doLabel = np.full((1, len(data)), False)[0]
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data,
+         'truth': list_truth, 'doLabel': doLabel, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_original.csv", index=False);
+
+############################################---LABEL BASED ON TRUST############################################################
+    label_data_cabd = data.copy();
+    doLabel_cabd = np.full((1, len(data)), False)[0]
+    for index, value in enumerate(list_truth):
+        if index in list_change_points:
+            doLabel_cabd[index] = True
+            doLabel_cabd[index - 1] = True
+        if index in list_anomaly_pattern or index in list_anonaly_points:
+            label_data_cabd[index] = value
+            doLabel_cabd[index] = True
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_cabd,
+         'truth': list_truth, 'doLabel': doLabel_cabd, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_correct.csv", index=False)
+
+############################################---LABEL BASED ON DETECTION______############################################################
+    label_data_cabd_all = data.copy();
+    doLabel_cabd_all = np.full((1, len(data)), False)[0]
+    quality_require = 0.7
+    for detect_result in active_learning:
+        if detect_result[1] == 3 and detect_result[2] >=quality_require:
+            doLabel_cabd_all[detect_result[0]] = True
+            doLabel_cabd_all[detect_result[0] - 1] = True
+        if detect_result[1] == 1 and detect_result[2] >= quality_require:
+            label_data_cabd_all[detect_result[0]] = list_truth[detect_result[0]]
+            doLabel_cabd_all[detect_result[0]] = True
+        if detect_result[1] == 2 and detect_result[2] >= quality_require:
+            label_data_cabd_all[detect_result[0]] = list_truth[detect_result[0]]
+            doLabel_cabd_all[detect_result[0]] = True
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_cabd_all,
+         'truth': list_truth, 'doLabel': doLabel_cabd_all, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_detection.csv", index=False)
+
+###############################################__LABEL BASED ON RANDOM _____#########################################################
+    label_data_random = data.copy();
+    doLabel_random = np.full((1, len(data)), False)[0]
+    ramdom_list = np.random.randint(4, len(data), int(len(data) * 0.2))
+    for index, value in enumerate(ramdom_list):
+        label_data_random[value] = list_truth[value]
+        doLabel_random[value] = True
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_random,
+         'truth': list_truth, 'doLabel': doLabel_random, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_random.csv", index=False)
 
 
 def display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score, ground_anomaly_list,
@@ -698,18 +781,23 @@ def display_performance(X_data, array_evaluation_result_myAL, dict_result_analyt
     result_changepoint_list = []
     examing_point = list(dict_score.keys())
     model_predict_result = learner.predict(X_data)
+    result_all = []
+
     for tempt_i, tempt_value in enumerate(model_predict_result):
         if tempt_value == 3:
             result_changepoint_list.append(examing_point[tempt_i])
+            result_all.append([examing_point[tempt_i],tempt_value, max(learner.predict_proba([X_data[tempt_i]])[0])])
     for tempt_i, tempt_value in enumerate(model_predict_result):
         if examing_point[tempt_i] not in result_changepoint_list:
             if tempt_value == 1:
                 result_anomaly_list.append(examing_point[tempt_i])
+                result_all.append([examing_point[tempt_i], tempt_value, max(learner.predict_proba([X_data[tempt_i]])[0])])
                 if len(dict_result_analytic[examing_point[tempt_i]][2]) > 1:
                     result_anomaly_list.extend(
                         [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
             if tempt_value == 2:
                 # result_anomaly_list.append(examing_point[tempt_i])
+                result_all.append([[z for z in dict_result_analytic[examing_point[tempt_i]][2]], tempt_value, max(learner.predict_proba([X_data[tempt_i]])[0])])
                 result_anomaly_list.extend(
                     [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
     # Calculate the correctness.
@@ -732,7 +820,7 @@ def display_performance(X_data, array_evaluation_result_myAL, dict_result_analyt
     print("Anomaly Detection Recall: {}".format(temp_recal_value))
     print("Change Point Detection Precision: {}".format(temp_precision_value_changePoint))
     print("Change Point Detection Recall: {}".format(temp_recal_value_changePoint))
-    return [temp_precision_value,temp_recal_value, temp_precision_value_changePoint, temp_recal_value_changePoint]
+    return [temp_precision_value,temp_recal_value, temp_precision_value_changePoint, temp_recal_value_changePoint,result_all]
 
 
 def find_element_in_list(element, list_element):
