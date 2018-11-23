@@ -472,33 +472,33 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
         )
         idx = idx + 1
         # remove queried instance from pool
-        #print("----------------Round {}----------------------------".format(idx))
+        print("----------------Round {}----------------------------".format(idx))
         X_pool = np.delete(X_pool, query_idx, axis=0)
         Y_pool = np.delete(Y_pool, query_idx)
         if len(X_pool) != 0:
-            #print('Accuracy after %d query : %f' % (idx, learner.score(X_data, Y_data)))
+            print('Accuracy after %d query : %f' % (idx, learner.score(X_data, Y_data)))
             proba_score = learner.predict_proba(X_pool);
             if min([max(i) for i in proba_score]) >= confident_threshold:
                 flag_asking = 0
-            #print('Min confident after %d query : %f' % (idx, min([max(i) for i in proba_score])))
+            print('Min confident after %d query : %f' % (idx, min([max(i) for i in proba_score])))
 
             array_evaluation_result['precision'].append(learner.score(X_data, Y_data))
             array_evaluation_result['min_confident'].append(min([max(i) for i in proba_score]))
             array_evaluation_result['total_points'].append(len(X_data))
 
-            ### Calculate the correcness
-            # display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
-            #                     ground_anomaly_list,
-            #                     ground_change_point_list, learner)
+            ## Calculate the correcness
+            display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
+                                ground_anomaly_list,
+                                ground_change_point_list, learner)
         else:
             array_evaluation_result['precision'].append(learner.score(X_data, Y_data))
             array_evaluation_result['min_confident'].append(100)
             array_evaluation_result['total_points'].append(len(X_data))
 
-            ### Calculate the correcness
-            # display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
-            #                     ground_anomaly_list,
-            #                     ground_change_point_list, learner)
+            ## Calculate the correcness
+            display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score,
+                                ground_anomaly_list,
+                                ground_change_point_list, learner)
             flag_asking = 0
 
 
@@ -549,148 +549,111 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, max_AN, max_
                       2 * after_activerlerning_result[2] * after_activerlerning_result[3] / (
                               after_activerlerning_result[2] + after_activerlerning_result[3])]
 
-    if end_result[0] + end_result[1] > max_AN + max_CP:
-        max_AN = end_result[0]
-        max_CP = end_result[1]
-        result_dta.to_csv(file_path, index=False);
-        df_percentage_result = pd.DataFrame(array_evaluation_result,
-                                            columns=['precision', 'min_confident', 'total_points'])
-        df_percentage_result.to_csv(file_path_chart + "_accuracy_model.csv")
-        df_final_result = pd.DataFrame(data={'dataset': DATA_FILE,
-                                             'bf_pre_anomaly': before_activelearning_result[0],
-                                             'bf_re_anomaly': before_activelearning_result[1],
-                                             'bf_pre_change': before_activelearning_result[2],
-                                             'bf_re_change': before_activelearning_result[3],
-                                             'af_pre_anomaly': after_activerlerning_result[0],
-                                             'af_re_anomaly': after_activerlerning_result[1],
-                                             'af_pre_change': after_activerlerning_result[2],
-                                             'af_re_change': after_activerlerning_result[3],
-                                             'nb_anomalies': len(ground_anomaly_list),
-                                             'nb_change_point': len(ground_change_point_list)}, index=[0])
-        df_final_result.to_csv(file_path_chart + "_result.csv");
+    # if end_result[0] + end_result[1] > max_AN + max_CP:
+    #     max_AN = end_result[0]
+    #     max_CP = end_result[1]
+    #     #result_dta.to_csv(file_path, index=False);
+    #     df_percentage_result = pd.DataFrame(array_evaluation_result,
+    #                                         columns=['precision', 'min_confident', 'total_points'])
+    #     df_percentage_result.to_csv(file_path_chart + "_accuracy_model.csv")
+    #     df_final_result = pd.DataFrame(data={'dataset': DATA_FILE,
+    #                                          'bf_pre_anomaly': before_activelearning_result[0],
+    #                                          'bf_re_anomaly': before_activelearning_result[1],
+    #                                          'bf_pre_change': before_activelearning_result[2],
+    #                                          'bf_re_change': before_activelearning_result[3],
+    #                                          'af_pre_anomaly': after_activerlerning_result[0],
+    #                                          'af_re_anomaly': after_activerlerning_result[1],
+    #                                          'af_pre_change': after_activerlerning_result[2],
+    #                                          'af_re_change': after_activerlerning_result[3],
+    #                                          'nb_anomalies': len(ground_anomaly_list),
+    #                                          'nb_change_point': len(ground_change_point_list)}, index=[0])
+    #     df_final_result.to_csv(file_path_chart + "_result.csv");
+    #
+    #     cmfunc.plot_data_all(file_path_chart,
+    #                          [[list(range(0, len(raw_dta.value))), raw_dta.value],
+    #                           [list([index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1]),
+    #                            raw_dta.value[list(
+    #                                [index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1])]],
+    #                           [list([index for index, value in enumerate(raw_dta.change_point.values) if value == 1]),
+    #                            raw_dta.value[list(
+    #                                [index for index, value in enumerate(raw_dta.change_point.values) if value == 1])]],
+    #                           [list(
+    #                               [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if value == 1]),
+    #                            raw_dta.value[list(
+    #                                [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if
+    #                                 value == 1])]]],
+    #                          ['lines', 'markers', 'markers', 'markers'],
+    #                          [None, 'x', 'circle', 'x'],
+    #                          ['Raw data', "Detected Anomaly Point", "Detected Change Point",
+    #                           "Detected Anomaly Patterm"]
+    #                          )
 
-        cmfunc.plot_data_all(file_path_chart,
-                             [[list(range(0, len(raw_dta.value))), raw_dta.value],
-                              [list([index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1]),
-                               raw_dta.value[list(
-                                   [index for index, value in enumerate(raw_dta.anomaly_point.values) if value == 1])]],
-                              [list([index for index, value in enumerate(raw_dta.change_point.values) if value == 1]),
-                               raw_dta.value[list(
-                                   [index for index, value in enumerate(raw_dta.change_point.values) if value == 1])]],
-                              [list(
-                                  [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if value == 1]),
-                               raw_dta.value[list(
-                                   [index for index, value in enumerate(raw_dta.anomaly_pattern.values) if
-                                    value == 1])]]],
-                             ['lines', 'markers', 'markers', 'markers'],
-                             [None, 'x', 'circle', 'x'],
-                             ['Raw data', "Detected Anomaly Point", "Detected Change Point",
-                              "Detected Anomaly Patterm"]
-                             )
 
-
-    # ######################################################
-    # # Calculate Y
-    # # Asyncronous function to calculate Y value
-    # for detected_change_point in result_changepoint_list:
-    #     result_dta.anomaly_score[detected_change_point] = 0
-    # async def calculate_Y_value_big(executor):
-    #     loop = asyncio.get_event_loop()
-    #     blocking_tasks = [
-    #         loop.run_in_executor(executor, calculate_Y_value, alpha, anomaly_point, limit_size, median_sec_der,
-    #                              dict_neighbor, raw_dta, result_dta, std_sec_der, tree, X, Y)
-    #         for anomaly_point in sorted(result_anomaly_list)
-    #     ]
-    #     completed, pending = await asyncio.wait(blocking_tasks)
-    #     results = [t.result() for t in completed]
-    #     print("The sum times of calculating Y: {}".format(sum(results)))
-    #
-    # # Starting calculating function
-    # # loop = asyncio.new_event_loop()
-    # # asyncio.set_event_loop(loop)
-    # event_loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(event_loop)
-    # try:
-    #     event_loop.run_until_complete(
-    #         calculate_Y_value_big(executor_y)
-    #     )
-    # finally:
-    #     event_loop.close()
-    #     print("Finish threading calculation of Y")
-    #
-    # # Calculate final score
-    # result_dta.anomaly_score = result_dta.anomaly_score + Y
-    #
-    # print("Calculating Y Time for {} elements: {}".format(len(anomaly_index), time.time() - start_time_calculate_Y))
-    #
-    # #######################################################
-    # ########## STARTING CALCULATING Z ####################
-    #
-    # # ssss = time.time()
-    # # # normal_index = [i for i, value in enumerate(result_dta['anomaly_score']) if
-    # # #                filter_function_z(result_dta['anomaly_score'],i,limit_size/2,data_length) > 0 and value <= np.percentile(result_dta['anomaly_score'], 20)]
-    # # anomaly_score = result_dta['anomaly_score']
-    # # normal_index = [i for i, value in enumerate(anomaly_score) if
-    # #                 value <= 0 and anomaly_score[tree.query([X[i]], k=int(limit_size / 2))[1][0]].values.max() > 0]
-    # # print("Chossing time for {}: {}".format(len(normal_index), time.time() - ssss))
-    # # normal_points_array = chunks(sorted(normal_index), 30)
-    # #
-    # # async def calculate_z_value(executor):
-    # #     loop = asyncio.get_event_loop()
-    # #     blocking_tasks = [
-    # #         loop.run_in_executor(executor, find_inverneghboor_of_point_blocking, alpha, normal_points,
-    # #                              result_dta, Z)
-    # #         for normal_points in normal_points_array
-    # #     ]
-    # #     completed, pending = await asyncio.wait(blocking_tasks)
-    # #     results = [t.result() for t in completed]
-    # #     print("The sum times of calculating Z: {}".format(sum(results)))
-    # #
-    # # event_loop = asyncio.new_event_loop()
-    # # asyncio.set_event_loop(event_loop)
-    # # try:
-    # #     event_loop.run_until_complete(
-    # #         calculate_z_value(executor)
-    # #     )
-    # # finally:
-    # #     event_loop.close()
-    # #
-    # # result_dta.anomaly_score = result_dta.anomaly_score - Z
-    # #
-    # # end_time_calculate_Z = time.time()
-    # # print("Calculating Z Time: {}".format(time.time() - ssss))
-    #
-    # final_score = list(map(lambda x: 0 if x < 0 else x, result_dta.anomaly_score))
-    # final_score = (final_score - np.min(final_score)) / (np.max(final_score) - np.min(final_score))
-    #
-    # # Calculating Change point.
-    # start_time_calculate_changepoint = time.time()
-    #
-    # ### Find potential anomaly point
-    # std_final_point = np.std(final_score)
-    #
-    # # anomaly_set = [i for i, v in enumerate(final_score) if v > 0]
-    # #
-    # # # The algorithm to seperate anomaly point and change point.
-    # # file_path = "./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv"
-    # # df_null = pd.read_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/null/realKnownCause/null_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"))
-    # #
-    # # df = pd.read_csv(file_path)
-    # # df = df.assign(anomaly_score=pd.Series(final_score).values)
-    # # del df['anomaly_pattern']
-    # # del df['anomaly_point']
-    # # del df['change_point']
-    # #
-    # # df['timestamp'] = pd.Series(df_null['timestamp']).values
-    # # df = df.assign(label=pd.Series(np.zeros(len(df))).values)
-    # # df.sort_values(by='timestamp', inplace=True)
-    # # df.sort_index(axis=0, inplace=True)
-    # #
-    # # #df.to_csv(file_path, index=False);
-    # # df.to_csv(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/results/myAL/realKnownCause/myAL_' + DATA_FILE.replace(" ", "_") + "_sorted.csv"), index=False)
-
-    return [end_result,max_AN,max_CP]
+    return [end_result,max_AN,max_CP, after_activerlerning_result[4]]
     # return [detect_final_result,chartmess]
+
+
+def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
+
+
+    file_path = "D:/Workspace/imr/data/"
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    data = df_raw['value'].values
+    list_change_points = [i for i, x in enumerate(df_raw['change_point'].values) if x == 1]
+    list_anonaly_points = [i for i, x in enumerate(df_raw['anomaly_point'].values) if x == 1]
+    list_anomaly_pattern = [i for i, x in enumerate(df_raw['anomaly_pattern'].values) if x == 1]
+    list_truth = df_raw['truth'].values
+
+    change_points_data = np.zeros(len(data))
+    change_points_data[list_change_points[0:-1]] = 1
+
+    anomaly_points_data = np.zeros(len(data))
+    anomaly_points_data[list_anonaly_points] = 1
+
+    anomaly_points_data[list_anomaly_pattern] = 1
+
+    label_data = data.copy();
+    doLabel = np.full((1, len(data)), False)[0]
+
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data,
+         'truth': list_truth, 'doLabel': doLabel, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_original.csv", index=False);
+
+    label_data_cabd = data.copy();
+    doLabel_cabd = np.full((1, len(data)), False)[0]
+
+    for index, value in enumerate(list_truth):
+        if index in list_change_points:
+            doLabel_cabd[index] = True
+            doLabel_cabd[index - 1] = True
+        if index in list_anomaly_pattern or index in list_anonaly_points:
+            label_data_cabd[index] = value
+            doLabel_cabd[index] = True
+
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_cabd,
+         'truth': list_truth, 'doLabel': doLabel_cabd, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_correct.csv", index=False)
+
+    label_data_random = data.copy();
+    doLabel_random = np.full((1, len(data)), False)[0]
+
+    ramdom_list = np.random.randint(4, len(data), int(len(data) * 0.2))
+
+    for index, value in enumerate(ramdom_list):
+        label_data_random[value] = list_truth[value]
+        doLabel_random[value] = True
+
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_random,
+         'truth': list_truth, 'doLabel': doLabel_random, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_random.csv", index=False)
 
 
 def display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score, ground_anomaly_list,
@@ -699,18 +662,23 @@ def display_performance(X_data, array_evaluation_result_myAL, dict_result_analyt
     result_changepoint_list = []
     examing_point = list(dict_score.keys())
     model_predict_result = learner.predict(X_data)
+    result_all = []
+
     for tempt_i, tempt_value in enumerate(model_predict_result):
         if tempt_value == 3:
             result_changepoint_list.append(examing_point[tempt_i])
+            result_all.append([examing_point[tempt_i],tempt_value, max(learner.predict_proba([X_data[tempt_i]])[0])])
     for tempt_i, tempt_value in enumerate(model_predict_result):
         if examing_point[tempt_i] not in result_changepoint_list:
             if tempt_value == 1:
                 result_anomaly_list.append(examing_point[tempt_i])
+                result_all.append([examing_point[tempt_i], tempt_value, max(learner.predict_proba([X_data[tempt_i]])[0])])
                 if len(dict_result_analytic[examing_point[tempt_i]][2]) > 1:
                     result_anomaly_list.extend(
                         [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
             if tempt_value == 2:
                 # result_anomaly_list.append(examing_point[tempt_i])
+                result_all.append([[z for z in dict_result_analytic[examing_point[tempt_i]][2]], tempt_value, max(learner.predict_proba([X_data[tempt_i]])[0])])
                 result_anomaly_list.extend(
                     [z for z in dict_result_analytic[examing_point[tempt_i]][2]])
     # Calculate the correctness.
@@ -733,7 +701,7 @@ def display_performance(X_data, array_evaluation_result_myAL, dict_result_analyt
     print("Anomaly Detection Recall: {}".format(temp_recal_value))
     print("Change Point Detection Precision: {}".format(temp_precision_value_changePoint))
     print("Change Point Detection Recall: {}".format(temp_recal_value_changePoint))
-    return [temp_precision_value,temp_recal_value, temp_precision_value_changePoint, temp_recal_value_changePoint]
+    return [temp_precision_value,temp_recal_value, temp_precision_value_changePoint, temp_recal_value_changePoint,result_all]
 
 
 def find_element_in_list(element, list_element):

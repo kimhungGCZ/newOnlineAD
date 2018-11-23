@@ -47,6 +47,7 @@ def getGCZDataFrame(DATA_FILE, AN_per, CP_per):
     list_change_points = raw_data_generation[1]
     list_anonaly_points = raw_data_generation[2]
     list_anomaly_pattern = raw_data_generation[3]
+    list_truth = raw_data_generation[4]
     print("N0 Change point: {}".format(len(list_change_points)))
     print("N0 Anomaly point: {}".format(len(list_anonaly_points)))
     print("N0 Anomaly Pattern point: {}".format(len(list_anomaly_pattern)))
@@ -65,7 +66,7 @@ def getGCZDataFrame(DATA_FILE, AN_per, CP_per):
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
     time_array = [datetime.datetime.fromtimestamp(ts - 10000 * i).strftime('%Y-%m-%d %H:%M:%S') for i in data]
     d = {'timestamp': time_array, 'value': data, 'change_point': change_points_data,
-         'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data}
+         'anomaly_point': anomaly_points_data, 'anomaly_pattern': anomaly_pattern_points_data,'truth': list_truth}
     df = pd.DataFrame(data=d)
     #df.to_csv(file_path, index=False);
     ############################## LOAD FROM CSV ###################################
@@ -88,7 +89,7 @@ def getGCZDataFrame(DATA_FILE, AN_per, CP_per):
     # df_new.to_csv(file_path, index=False);
 
     ############################## LOAD FROM  ###################################
-    #df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")
+    ##df = pd.read_csv("./active_result/all/" + DATA_FILE + "/" + DATA_FILE + ".csv")
 
     # webURL.close()
     return df
