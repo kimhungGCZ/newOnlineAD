@@ -257,11 +257,11 @@ if __name__ == "__main__":
                                         'fscoreanomaly': [],
                                         'fscorechangepoint': [],
                                         'query': []}
-        AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
-        #AL_coup = [[0.01]]
+        #AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
+        AL_coup = [[0.01]]
         # CP_coup = [0.02, 0.05, 0.1, 0.15]
-        CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
-        #CP_coup = [0.01]
+        #CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
+        CP_coup = [0.01]
         # AL_coup = [[0.1,75],[0.15,70],[0.2,65]]
         # AL_coup = [[0.01,60]]
         confident_threshold = 1
@@ -270,20 +270,20 @@ if __name__ == "__main__":
                 max_AN = 0
                 max_CP = 0
                 data = ("test_" + str(run_value[0]) + "_" + str(CP_value)).replace(".", "")
-                raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0)
-                ts = time.time()
-                st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                time_array = [datetime.datetime.fromtimestamp(ts - 10000 * index).strftime('%Y-%m-%d %H:%M:%S') for index, value in enumerate(raw_dataframe['value'])]
-                raw_dataframe['timestamp'] = time_array
-                raw_dataframe.to_csv(os.path.normpath(
-                    'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
-                        " ", "_") + "_trust.csv"), index=False)
-                raw_dataframe = raw_dataframe.drop(columns=['change_point', 'anomaly_point', 'anomaly_pattern','anomaly_score'])
-                raw_dataframe.to_csv(os.path.normpath(
-                    'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
-                        " ", "_") + ".csv"), index=False)
-                # detect_final_result = main_function(data, run_value[0], CP_value, confident_threshold)
-                # print(detect_final_result)
+                # raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0)
+                # ts = time.time()
+                # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+                # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * index).strftime('%Y-%m-%d %H:%M:%S') for index, value in enumerate(raw_dataframe['value'])]
+                # raw_dataframe['timestamp'] = time_array
+                # raw_dataframe.to_csv(os.path.normpath(
+                #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
+                #         " ", "_") + "_trust.csv"), index=False)
+                # raw_dataframe = raw_dataframe.drop(columns=['change_point', 'anomaly_point', 'anomaly_pattern','anomaly_score'])
+                # raw_dataframe.to_csv(os.path.normpath(
+                #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
+                #         " ", "_") + ".csv"), index=False)
+                detect_final_result = main_function(data, run_value[0], CP_value, confident_threshold)
+                print(detect_final_result)
                 # # if detect_final_result[0] > max_AN and detect_final_result[1] > max_CP:
                 # #     max_AN = detect_final_result[0]
                 # #     max_CP = detect_final_result[1]
