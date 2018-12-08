@@ -694,8 +694,7 @@ def online_anomaly_detection(result_dta, raw_dta, alpha, DATA_FILE, confident_th
 
 def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
 
-
-    file_path = "D:/Workspace/imr/data/"
+    file_path = "D:/Workspace/imr/data_optimization/"
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -723,11 +722,12 @@ def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
          'truth': list_truth, 'doLabel': doLabel, 'anomaly': anomaly_points_data}
     df = pd.DataFrame(data=d)
     df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
-    df.to_csv(file_path + "/" + DATA_FILE + "_original.csv", index=False);
+    df.to_csv(file_path + "/" + DATA_FILE + "_original.csv", index=False, header=False);
 
 ############################################---LABEL BASED ON TRUST############################################################
     label_data_cabd = data.copy();
     doLabel_cabd = np.full((1, len(data)), False)[0]
+    doLabel_cabd[0:3] = True
     for index, value in enumerate(list_truth):
         if index in list_change_points:
             doLabel_cabd[index] = True
@@ -739,11 +739,12 @@ def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
          'truth': list_truth, 'doLabel': doLabel_cabd, 'anomaly': anomaly_points_data}
     df = pd.DataFrame(data=d)
     df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
-    df.to_csv(file_path + "/" + DATA_FILE + "_label_correct.csv", index=False)
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_correct.csv", index=False, header=False)
 
 ############################################---LABEL BASED ON DETECTION______############################################################
     label_data_cabd_all = data.copy();
     doLabel_cabd_all = np.full((1, len(data)), False)[0]
+    doLabel_cabd_all[0:3] = True
     quality_require = 0.7
     for detect_result in active_learning:
         if detect_result[1] == 3 and detect_result[2] >=quality_require:
@@ -759,11 +760,12 @@ def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
          'truth': list_truth, 'doLabel': doLabel_cabd_all, 'anomaly': anomaly_points_data}
     df = pd.DataFrame(data=d)
     df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
-    df.to_csv(file_path + "/" + DATA_FILE + "_label_detection.csv", index=False)
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_detection.csv", index=False, header=False)
 
 ###############################################__LABEL BASED ON RANDOM _____#########################################################
     label_data_random = data.copy();
     doLabel_random = np.full((1, len(data)), False)[0]
+    doLabel_random[0:3] = True
     ramdom_list = np.random.randint(4, len(data), int(len(data) * 0.2))
     for index, value in enumerate(ramdom_list):
         label_data_random[value] = list_truth[value]
@@ -772,7 +774,48 @@ def generate_tsing_data_format(DATA_FILE, df_raw, active_learning):
          'truth': list_truth, 'doLabel': doLabel_random, 'anomaly': anomaly_points_data}
     df = pd.DataFrame(data=d)
     df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
-    df.to_csv(file_path + "/" + DATA_FILE + "_label_random.csv", index=False)
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_random.csv", index=False, header=False)
+
+def generate_tsing_data_format_percentage(DATA_FILE, df_raw, active_learning):
+
+
+    file_path = "D:/Workspace/imr/data_percentage/"
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    data = df_raw['value'].values
+    list_change_points = [i for i, x in enumerate(df_raw['change_point'].values) if x == 1]
+    list_anonaly_points = [i for i, x in enumerate(df_raw['anomaly_point'].values) if x == 1]
+    list_anomaly_pattern = [i for i, x in enumerate(df_raw['anomaly_pattern'].values) if x == 1]
+    list_truth = df_raw['value'].values.copy()
+    for i in list_anonaly_points:
+        list_truth[i] = list_truth[i-1]
+    for i in list_anomaly_pattern:
+        list_truth[i] = list_truth[i-1]
+
+    change_points_data = np.zeros(len(data))
+    change_points_data[list_change_points[0:-1]] = 1
+
+    anomaly_points_data = np.zeros(len(data))
+    anomaly_points_data[list_anonaly_points] = 1
+    anomaly_points_data[list_anomaly_pattern] = 1
+
+    random_list = [0.05,0.1,0.2,0.3,0.4,0.5]
+
+    for i in random_list:
+        ###############################################__LABEL BASED ON RANDOM _____#########################################################
+        label_data_random = data.copy();
+        doLabel_random = np.full((1, len(data)), False)[0]
+        doLabel_random[0:3] = True
+        ramdom_list = np.random.randint(4, len(data), int(len(data) * i))
+        for index, value in enumerate(ramdom_list):
+            label_data_random[value] = list_truth[value]
+            doLabel_random[value] = True
+        d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_random,
+             'truth': list_truth, 'doLabel': doLabel_random, 'anomaly': anomaly_points_data}
+        df = pd.DataFrame(data=d)
+        df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+        df.to_csv(file_path + "/" + DATA_FILE + "_label_random_"+ str(i) +".csv", index=False)
 
 
 def display_performance(X_data, array_evaluation_result_myAL, dict_result_analytic, dict_score, ground_anomaly_list,
@@ -865,3 +908,70 @@ def checking_pattern_exist(score_pattern, detect_pattern, final_magnitude_score_
             flag_checking_pattern = True
             break
     return [flag_checking_pattern, possition_index]
+
+
+def generate_tsing_data_format_yahoo(DATA_FILE, df_raw, active_learning):
+
+
+    file_path = "D:/Workspace/imr/data_yahoo/"
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    data = df_raw['value'].values
+    list_anonaly_points = [i for i, x in enumerate(df_raw['is_anomaly'].values) if x == 1]
+    list_truth = df_raw['value'].values.copy()
+    for i in list_anonaly_points:
+        list_truth[i] = list_truth[i-1]
+
+    anomaly_points_data = np.zeros(len(data))
+    anomaly_points_data[list_anonaly_points] = 1
+
+###############################################__LABEL BASED ON RANDOM _____#########################################################
+    label_data_random = data.copy();
+    doLabel_random = np.full((1, len(data)), False)[0]
+    doLabel_random[0:3] = True
+    ramdom_list = np.random.randint(4, len(data), int(len(data) * 0.2))
+    for index, value in enumerate(ramdom_list):
+        label_data_random[value] = list_truth[value]
+        doLabel_random[value] = True
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_random,
+         'truth': list_truth, 'doLabel': doLabel_random, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_random_02.csv", index=False, header = False)
+
+def generate_tsing_data_format_sytthetic(DATA_FILE, df_raw, active_learning):
+    file_path = "D:/Workspace/imr/data_sync/"
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    data = df_raw['value'].values
+    list_change_points = [i for i, x in enumerate(df_raw['change_point'].values) if x == 1]
+    list_anonaly_points = [i for i, x in enumerate(df_raw['anomaly_point'].values) if x == 1]
+    list_anomaly_pattern = [i for i, x in enumerate(df_raw['anomaly_pattern'].values) if x == 1]
+    list_truth = df_raw['value'].values.copy()
+    for i in list_anonaly_points:
+        list_truth[i] = list_truth[i - 1]
+    for i in list_anomaly_pattern:
+        list_truth[i] = list_truth[i - 1]
+
+    change_points_data = np.zeros(len(data))
+    change_points_data[list_change_points[0:-1]] = 1
+
+    anomaly_points_data = np.zeros(len(data))
+    anomaly_points_data[list_anonaly_points] = 1
+    anomaly_points_data[list_anomaly_pattern] = 1
+
+###############################################__LABEL BASED ON RANDOM _____#########################################################
+    label_data_random = data.copy();
+    doLabel_random = np.full((1, len(data)), False)[0]
+    doLabel_random[0:3] = True
+    ramdom_list = np.random.randint(4, len(data), int(len(data) * 0.2))
+    for index, value in enumerate(ramdom_list):
+        label_data_random[value] = list_truth[value]
+        doLabel_random[value] = True
+    d = {'index': np.arange(1, len(data) + 1), 'value': data, 'label': label_data_random,
+         'truth': list_truth, 'doLabel': doLabel_random, 'anomaly': anomaly_points_data}
+    df = pd.DataFrame(data=d)
+    df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
+    df.to_csv(file_path + "/" + DATA_FILE + "_label_random_02.csv", index=False, header = False)

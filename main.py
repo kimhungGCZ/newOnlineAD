@@ -258,11 +258,11 @@ if __name__ == "__main__":
                                         'fscoreanomaly': [],
                                         'fscorechangepoint': [],
                                         'query': []}
-        #AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
-        AL_coup = [[0.05]]
+        AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
+        #AL_coup = [[0.01]]
         # CP_coup = [0.02, 0.05, 0.1, 0.15]
-        #CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
-        CP_coup = [0.01]
+        CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
+        #CP_coup = [0.01]
         # AL_coup = [[0.1,75],[0.15,70],[0.2,65]]
         # AL_coup = [[0.01,60]]
         confident_threshold = 0.8
@@ -306,3 +306,30 @@ if __name__ == "__main__":
 
         # df_final_result = pd.DataFrame(data=summary_result)
         # df_final_result.to_csv("./summary_result.csv");
+
+# if __name__ == "__main__":
+#     base_name = "real_"
+#     data_array = []  # real
+#     # data_array = ["example 320387", "example 346500", "example 533964","example 645266"] # SAW
+#     # data_array = ["example 624622", "example 798717", "example 513024"] # SIN
+#     # data_array = ["example 348800", "example 387713", "example 692083", "example 961480", "example 989638"] # SQUARE
+#     #data_array = ["test_1111"]  # real
+#     # data_array = ["real 624622"] # real
+#     # if i in [1,3,4,5,8,12,14,21,22,23,24,25,42]:
+#     # for i in range(1,50):
+#     #     if i not in [7,10,20]:
+#     #         data_array.append(base_name + str(i))
+#     AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
+#     CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
+#     confident_threshold = 0.8
+#     for CP_value in CP_coup:
+#         for run_value in AL_coup:
+#             data = ("test_" + str(run_value[0]) + "_" + str(CP_value)).replace(".", "")
+#             data_array.append(data);
+#
+#
+#     #data_array = ["real_42"]
+#     for data in data_array:
+#         raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0);
+#         engine.generate_tsing_data_format_sytthetic(data, raw_dataframe, 0)
+#         print("****************************************************************************************")
