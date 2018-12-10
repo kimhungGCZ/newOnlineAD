@@ -239,97 +239,97 @@ def main_function(DATA_FILE, AN_per, CP_per, confident_threshold):
     """
 
 
-if __name__ == "__main__":
-    base_name = "real_"
-    data_array = []  # real
-    # data_array = ["example 320387", "example 346500", "example 533964","example 645266"] # SAW
-    # data_array = ["example 624622", "example 798717", "example 513024"] # SIN
-    # data_array = ["example 348800", "example 387713", "example 692083", "example 961480", "example 989638"] # SQUARE
-    data_array = ["test_1111"]  # real
-    # data_array = ["real 624622"] # real
-    # if i in [1,3,4,5,8,12,14,21,22,23,24,25,42]:
-    # for i in range(1,50):
-    #     if i not in [7,10,20]:
-    #         data_array.append(base_name + str(i))
-
-    # data_array = ["real_42"]
-    for data in data_array:
-        summary_result = {'dataname': [],
-                                        'fscoreanomaly': [],
-                                        'fscorechangepoint': [],
-                                        'query': []}
-        AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
-        #AL_coup = [[0.01]]
-        # CP_coup = [0.02, 0.05, 0.1, 0.15]
-        CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
-        #CP_coup = [0.01]
-        # AL_coup = [[0.1,75],[0.15,70],[0.2,65]]
-        # AL_coup = [[0.01,60]]
-        confident_threshold = 0.8
-        for CP_value in CP_coup:
-            for run_value in AL_coup:
-                max_AN = 0
-                max_CP = 0
-                data = ("test_" + str(run_value[0]) + "_" + str(CP_value)).replace(".", "")
-                # raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0)
-                # ts = time.time()
-                # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-                # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * index).strftime('%Y-%m-%d %H:%M:%S') for index, value in enumerate(raw_dataframe['value'])]
-                # raw_dataframe['timestamp'] = time_array
-                # raw_dataframe.to_csv(os.path.normpath(
-                #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
-                #         " ", "_") + "_trust.csv"), index=False)
-                # raw_dataframe = raw_dataframe.drop(columns=['change_point', 'anomaly_point', 'anomaly_pattern','anomaly_score'])
-                # raw_dataframe.to_csv(os.path.normpath(
-                #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
-                #         " ", "_") + ".csv"), index=False)
-                detect_final_result = main_function(data, run_value[0], CP_value, confident_threshold)
-                print(detect_final_result)
-                # # if detect_final_result[0] > max_AN and detect_final_result[1] > max_CP:
-                # #     max_AN = detect_final_result[0]
-                # #     max_CP = detect_final_result[1]
-                # # if detect_final_result[0] >= run_value[1] and detect_final_result[1] >= 65:
-                # #     runn_flag = 1
-                # summary_result['dataname'].append(data)
-                # summary_result['fscoreanomaly'].append(detect_final_result[0][0])
-                # summary_result['fscorechangepoint'].append(detect_final_result[0][1])
-                # summary_result['query'].append(detect_final_result[1])
-                # print("AN score: {}, AP score: {}".format(detect_final_result[0][0], detect_final_result[0][1]))
-            # while flag_stop == 0:
-            #     detect_final_result = main_function(data, run_value[0], 0.05)
-            #     print(detect_final_result)
-            #     print("Result: {}, MAX AN: {}, MAX AP: {}".format(detect_final_result,max_AN, max_CP))
-            #     if detect_final_result[0] >= max_AN and detect_final_result[1] >= max_CP:
-            #         flag_stop = 1
-            # print("Final Result: {}, {}".format(detect_final_result[0], detect_final_result[1]))
-            print("****************************************************************************************")
-
-        # df_final_result = pd.DataFrame(data=summary_result)
-        # df_final_result.to_csv("./summary_result.csv");
-
 # if __name__ == "__main__":
 #     base_name = "real_"
 #     data_array = []  # real
 #     # data_array = ["example 320387", "example 346500", "example 533964","example 645266"] # SAW
 #     # data_array = ["example 624622", "example 798717", "example 513024"] # SIN
 #     # data_array = ["example 348800", "example 387713", "example 692083", "example 961480", "example 989638"] # SQUARE
-#     #data_array = ["test_1111"]  # real
+#     data_array = ["test_1111"]  # real
 #     # data_array = ["real 624622"] # real
 #     # if i in [1,3,4,5,8,12,14,21,22,23,24,25,42]:
 #     # for i in range(1,50):
 #     #     if i not in [7,10,20]:
 #     #         data_array.append(base_name + str(i))
-#     AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
-#     CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
-#     confident_threshold = 0.8
-#     for CP_value in CP_coup:
-#         for run_value in AL_coup:
-#             data = ("test_" + str(run_value[0]) + "_" + str(CP_value)).replace(".", "")
-#             data_array.append(data);
 #
-#
-#     #data_array = ["real_42"]
+#     # data_array = ["real_42"]
 #     for data in data_array:
-#         raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0);
-#         engine.generate_tsing_data_format_sytthetic(data, raw_dataframe, 0)
-#         print("****************************************************************************************")
+#         summary_result = {'dataname': [],
+#                                         'fscoreanomaly': [],
+#                                         'fscorechangepoint': [],
+#                                         'query': []}
+#         AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
+#         #AL_coup = [[0.01]]
+#         # CP_coup = [0.02, 0.05, 0.1, 0.15]
+#         CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
+#         #CP_coup = [0.01]
+#         # AL_coup = [[0.1,75],[0.15,70],[0.2,65]]
+#         # AL_coup = [[0.01,60]]
+#         confident_threshold = 0.8
+#         for CP_value in CP_coup:
+#             for run_value in AL_coup:
+#                 max_AN = 0
+#                 max_CP = 0
+#                 data = ("test_" + str(run_value[0]) + "_" + str(CP_value)).replace(".", "")
+#                 # raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0)
+#                 # ts = time.time()
+#                 # st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+#                 # time_array = [datetime.datetime.fromtimestamp(ts - 10000 * index).strftime('%Y-%m-%d %H:%M:%S') for index, value in enumerate(raw_dataframe['value'])]
+#                 # raw_dataframe['timestamp'] = time_array
+#                 # raw_dataframe.to_csv(os.path.normpath(
+#                 #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
+#                 #         " ", "_") + "_trust.csv"), index=False)
+#                 # raw_dataframe = raw_dataframe.drop(columns=['change_point', 'anomaly_point', 'anomaly_pattern','anomaly_score'])
+#                 # raw_dataframe.to_csv(os.path.normpath(
+#                 #     'D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/' + data.replace(
+#                 #         " ", "_") + ".csv"), index=False)
+#                 detect_final_result = main_function(data, run_value[0], CP_value, confident_threshold)
+#                 print(detect_final_result)
+#                 # # if detect_final_result[0] > max_AN and detect_final_result[1] > max_CP:
+#                 # #     max_AN = detect_final_result[0]
+#                 # #     max_CP = detect_final_result[1]
+#                 # # if detect_final_result[0] >= run_value[1] and detect_final_result[1] >= 65:
+#                 # #     runn_flag = 1
+#                 # summary_result['dataname'].append(data)
+#                 # summary_result['fscoreanomaly'].append(detect_final_result[0][0])
+#                 # summary_result['fscorechangepoint'].append(detect_final_result[0][1])
+#                 # summary_result['query'].append(detect_final_result[1])
+#                 # print("AN score: {}, AP score: {}".format(detect_final_result[0][0], detect_final_result[0][1]))
+#             # while flag_stop == 0:
+#             #     detect_final_result = main_function(data, run_value[0], 0.05)
+#             #     print(detect_final_result)
+#             #     print("Result: {}, MAX AN: {}, MAX AP: {}".format(detect_final_result,max_AN, max_CP))
+#             #     if detect_final_result[0] >= max_AN and detect_final_result[1] >= max_CP:
+#             #         flag_stop = 1
+#             # print("Final Result: {}, {}".format(detect_final_result[0], detect_final_result[1]))
+#             print("****************************************************************************************")
+#
+#         # df_final_result = pd.DataFrame(data=summary_result)
+#         # df_final_result.to_csv("./summary_result.csv");
+
+if __name__ == "__main__":
+    base_name = "real_"
+    data_array = []  # real
+    # data_array = ["example 320387", "example 346500", "example 533964","example 645266"] # SAW
+    # data_array = ["example 624622", "example 798717", "example 513024"] # SIN
+    # data_array = ["example 348800", "example 387713", "example 692083", "example 961480", "example 989638"] # SQUARE
+    #data_array = ["test_1111"]  # real
+    # data_array = ["real 624622"] # real
+    #if i in [1,3,4,5,8,12,14,21,22,23,24,25,42]:
+    for i in range(1,50):
+        if i not in [7,10,20]:
+            data_array.append(base_name + str(i))
+    # AL_coup = [[0.01],[0.05],[0.1],[0.15],[0.2]]
+    # CP_coup = [0.01, 0.02, 0.05, 0.1, 0.20]
+    # confident_threshold = 0.8
+    # for CP_value in CP_coup:
+    #     for run_value in AL_coup:
+    #         data = ("test_" + str(run_value[0]) + "_" + str(CP_value)).replace(".", "")
+    #         data_array.append(data);
+
+
+    #data_array = ["real_42"]
+    for data in data_array:
+        raw_dataframe = data_engine.getGCZDataFrame(data, 0, 0);
+        engine.generate_NAB_data_format_Yahoo(data, raw_dataframe, 0)
+        print("****************************************************************************************")

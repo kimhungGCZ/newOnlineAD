@@ -33,6 +33,7 @@ from saxpy.saxpy.sax import ts_to_string
 from saxpy.saxpy.alphabet import cuts_for_asize
 
 from scripts.detect_peaks import detect_peaks
+import json
 
 Maggitute_radion = 0.02
 
@@ -975,3 +976,33 @@ def generate_tsing_data_format_sytthetic(DATA_FILE, df_raw, active_learning):
     df = pd.DataFrame(data=d)
     df = df[['index', 'value', 'label', 'truth', 'doLabel', 'anomaly']]
     df.to_csv(file_path + "/" + DATA_FILE + "_label_random_02.csv", index=False, header = False)
+
+def generate_NAB_data_format_Yahoo(DATA_FILE, df_raw, active_learning):
+    file_path = "D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/data/realKnownCause/"
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    data = df_raw['value'].values
+###############################################__Write evaluated file _____#########################################################
+
+    df_raw.to_csv(file_path + "/" + DATA_FILE + "_trust.csv", index=False)
+
+###############################################__Write evaluated file _____#########################################################
+    d = {'timestamp': df_raw['timestamp'].values, 'value': data}
+    df = pd.DataFrame(data=d)
+    df = df[['timestamp', 'value']]
+    df.to_csv(file_path + "/" + DATA_FILE + ".csv", index=False)
+
+    with open(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/labels/combined_windows.json')) as json_file:
+        data = json.load(json_file)
+        relative_path_load = 'realKnownCause/'+DATA_FILE+'.csv'
+        data[relative_path_load] = [];
+        with open(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/labels/combined_windows.json'), 'w') as outfile:
+            json.dump(data, outfile)
+
+    with open(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/labels/combined_windows_tiny.json')) as json_file:
+        data = json.load(json_file)
+        relative_path_load = 'realKnownCause/'+DATA_FILE+'.csv'
+        data[relative_path_load] = [];
+        with open(os.path.normpath('D:/Google Drive/13. These cifre/Data Cleaning/workspace/NAB/labels/combined_windows_tiny.json'), 'w') as outfile:
+            json.dump(data, outfile)

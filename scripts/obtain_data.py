@@ -88,7 +88,7 @@ def getGCZDataFrame(DATA_FILE, AN_per, CP_per):
     # df_new.to_csv(file_path, index=False);
 
     ############################## LOAD FROM  ###################################
-    df = pd.read_csv("./active_result/all/"+DATA_FILE+"/" + DATA_FILE + ".csv")
+    df = pd.read_csv("./active_result/yahoo/"+DATA_FILE+"/" + DATA_FILE + ".csv")
 
     # webURL.close()
     return df
