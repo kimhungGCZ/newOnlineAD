@@ -1,6 +1,6 @@
 apipkg==1.4
 asteval==0.9.1
-bottle==0.12.13
+bottle==0.12.19
 certifi==2017.7.27.1
 cf-deployment-tracker==1.0.4
 chardet==3.0.4
